@@ -1,0 +1,18 @@
+node_modules
+*.log
+.DS_Store
+
+# Nuxt
+.nuxt
+.output
+.data
+dist
+
+# Histoire
+.histoire
+.histoire-dist
+
+# Env
+.env
+.env.*
+!.env.example

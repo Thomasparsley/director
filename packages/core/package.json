@@ -1,0 +1,27 @@
+{
+  "name": "@director/core",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./nuxt.config.ts",
+  "files": [
+    "app",
+    "nuxt.config.ts"
+  ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "scripts": {
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@director/common": "workspace:*",
+    "@director/ui": "workspace:*"
+  },
+  "peerDependencies": {
+    "nuxt": "^4",
+    "vue": "^3.5"
+  },
+  "devDependencies": {
+    "vue-tsc": "3.3.3"
+  }
+}

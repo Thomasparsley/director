@@ -1,0 +1,9 @@
+packages:
+  - "packages/*"
+  - "playground"
+
+# Allow these dependencies to run their install/build scripts (native binaries / setup).
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  vue-demi: true

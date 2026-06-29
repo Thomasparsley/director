@@ -1,0 +1,22 @@
+{
+  "name": "director",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @director/playground dev",
+    "story": "pnpm --filter @director/ui story:dev",
+    "story:build": "pnpm --filter @director/ui story:build",
+    "lint": "pnpm -r --if-present lint",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "changeset publish"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.10"
+  }
+}
