@@ -6,14 +6,12 @@
 <template>
   <DAppShell title="Director — Playground">
     <div class="flex flex-col gap-6">
-      <p class="vtext-ui-text-2">
+      <p class="text-gray-600 dark:text-gray-300">
         Layer chain working: <code>@director/core → @director/ui → @director/common</code>
       </p>
 
       <div class="flex flex-wrap gap-3">
-        <DButton variant="solid" color="primary">Primary</DButton>
-        <DButton variant="outline" color="secondary">Secondary</DButton>
-        <DButton variant="ghost" color="error">Error</DButton>
+        <DButton>Default</DButton>
       </div>
     </div>
   </DAppShell>

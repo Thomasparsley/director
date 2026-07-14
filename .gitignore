@@ -8,6 +8,9 @@ node_modules
 .data
 dist
 
+# TypeScript
+*.tsbuildinfo
+
 # Histoire
 .histoire
 .histoire-dist

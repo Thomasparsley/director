@@ -11,28 +11,25 @@
     "app",
     "nuxt.config.ts",
     "uno.config.ts",
-    "uno.colors.ts",
-    "uno.variables.ts",
-    "uno.preflight.ts"
+    "uno.colors.ts"
   ],
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },
   "scripts": {
-    "story:dev": "histoire dev",
-    "story:build": "histoire build",
-    "typecheck": "vue-tsc --noEmit"
+    "postinstall": "nuxt prepare",
+    "typecheck": "nuxt prepare && vue-tsc -b --noEmit"
   },
   "dependencies": {
     "@director/common": "workspace:*",
     "@nuxtjs/color-mode": "4.0.0",
-    "@unocss/nuxt": "66.7.0",
-    "@unocss/transformer-compile-class": "66.7.0",
-    "@unocss/transformer-variant-group": "66.7.0",
+    "@unocss/nuxt": "66.7.4",
+    "@unocss/transformer-compile-class": "66.7.4",
+    "@unocss/transformer-variant-group": "66.7.4",
     "class-variance-authority": "0.7.1",
     "nuxt-lucide-icons": "2.1.0",
     "reka-ui": "2.9.8",
-    "unocss": "66.7.0",
+    "unocss": "66.7.4",
     "vaul-vue": "0.4.1"
   },
   "peerDependencies": {
@@ -40,11 +37,7 @@
     "vue": "^3.5"
   },
   "devDependencies": {
-    "@histoire/plugin-vue": "0.17.17",
-    "@unocss/reset": "66.7.0",
-    "@unocss/vite": "66.7.0",
-    "@vitejs/plugin-vue": "^5.2.0",
-    "histoire": "0.17.17",
+    "@types/node": "^22",
     "vue": "3.5.35",
     "vue-tsc": "3.3.3"
   }

@@ -8,8 +8,6 @@
   },
   "scripts": {
     "dev": "pnpm --filter @director/playground dev",
-    "story": "pnpm --filter @director/ui story:dev",
-    "story:build": "pnpm --filter @director/ui story:build",
     "lint": "pnpm -r --if-present lint",
     "typecheck": "pnpm -r --if-present typecheck",
     "changeset": "changeset",

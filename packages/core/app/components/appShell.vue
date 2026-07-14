@@ -5,11 +5,11 @@ defineProps<{ title?: string }>();
 </script>
 
 <template>
-  <div class="min-h-screen vbg-ui-bg vtext-ui-text">
-    <header class="flex items-center gap-3 border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-      <span class="text-lg font-semibold">{{ title ?? "Director" }}</span>
+  <div class=":uno: min-h-screen bg-gray-50 text-gray-900 dark:(bg-gray-950 text-gray-50)">
+    <header class=":uno: flex items-center gap-3 border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+      <span class=":uno: text-lg font-semibold">{{ title ?? "Director" }}</span>
     </header>
-    <main class="p-6">
+    <main class=":uno: p-6">
       <slot />
     </main>
   </div>

@@ -1,11 +1,10 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "include": [
-    "app/**/*",
-    "nuxt.config.ts",
-    "uno.config.ts",
-    "uno.colors.ts",
-    "uno.variables.ts",
-    "uno.preflight.ts"
+  "files": [],
+  "references": [
+    { "path": "./.nuxt/tsconfig.app.json" },
+    { "path": "./.nuxt/tsconfig.server.json" },
+    { "path": "./.nuxt/tsconfig.shared.json" },
+    { "path": "./.nuxt/tsconfig.node.json" },
+    { "path": "./tsconfig.uno.json" }
   ]
 }

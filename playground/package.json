@@ -10,7 +10,8 @@
     "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "@director/core": "workspace:*"
+    "@director/core": "workspace:*",
+    "@director/ui": "workspace:*"
   },
   "devDependencies": {
     "nuxt": "4.4.6",
