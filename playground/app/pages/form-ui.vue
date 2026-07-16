@@ -26,7 +26,7 @@ const profileForm = useFormGroup({
     lazyTransformers: [stringTrimTransformer],
   }),
   email: useFormControl<string>("", { validators: [requiredValidator(), emailValidator()] }),
-  role: useFormControl<string | undefined>(undefined, { validators: [requiredValidator()] }),
+  role: useFormControl<string | null>(null, { validators: [requiredValidator()] }),
   seats: useFormControl<number>(1, { validators: [numberRangeValidator(1, 50)] }),
   newsletter: useFormControl<boolean>(false),
   otp: useFormControl<string>("", { validators: [stringMinLengthValidator(5)] }),
