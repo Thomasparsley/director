@@ -11,10 +11,12 @@
   },
   "dependencies": {
     "@director/core": "workspace:*",
-    "@director/ui": "workspace:*"
+    "@director/ui": "workspace:*",
+    "@lucide/vue": "^1.0.0"
   },
   "devDependencies": {
     "nuxt": "4.4.6",
+    "typescript": "^6.0.3",
     "vue": "3.5.35",
     "vue-router": "5.1.0",
     "vue-tsc": "3.3.3"

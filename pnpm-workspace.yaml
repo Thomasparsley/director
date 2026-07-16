@@ -8,6 +8,20 @@ allowBuilds:
   esbuild: true
   vue-demi: true
 
+overrides:
+  # Hold the WHOLE graph on TypeScript 6 — npm's `latest` tag is 7, so without this
+  # a lockfile refresh silently pulls TS 7. TS 7 is the native (Go) rewrite: it
+  # exports only `lib/version.cjs`, with no `ts.sys` and no classic compiler API.
+  # @vue/compiler-sfc require()s typescript and uses `ts.sys` as its filesystem to
+  # resolve cross-file `import type` — which every component here does
+  # (button.vue -> ./button.types). On TS 7 that fails EVERY SFC in this repo with
+  # "No fs option provided to compileScript in non-Node environment".
+  # A devDependency alone is not enough: pnpm hoists a transitively-resolved TS 7
+  # into .pnpm/node_modules, which compiler-sfc finds FIRST when walking up.
+  # A range, not an exact pin, so we track the latest 6.x; ^6 cannot reach 7.
+  # Drop this once @vue/compiler-sfc supports TS 7.
+  typescript: ^6.0.3
+
 minimumReleaseAgeExclude:
   - '@unocss/cli@66.7.4'
   - '@unocss/config@66.7.4'

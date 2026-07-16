@@ -5,23 +5,38 @@
   "main": "./nuxt.config.ts",
   "files": [
     "app",
-    "nuxt.config.ts"
+    "nuxt.config.ts",
+    "!app/**/*.spec.ts"
   ],
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },
   "scripts": {
-    "typecheck": "vue-tsc --noEmit"
+    "typecheck": "nuxt prepare && vue-tsc -b --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "postinstall": "nuxt prepare"
   },
   "dependencies": {
     "@director/common": "workspace:*",
-    "@director/ui": "workspace:*"
+    "@director/ui": "workspace:*",
+    "class-variance-authority": "0.7.1",
+    "reka-ui": "2.9.8"
   },
   "peerDependencies": {
     "nuxt": "^4",
-    "vue": "^3.5"
+    "vue": "^3.5",
+    "vue-router": "^5"
   },
   "devDependencies": {
-    "vue-tsc": "3.3.3"
+    "@vitejs/plugin-vue": "^6.0.7",
+    "@vue/test-utils": "^2.4.11",
+    "happy-dom": "^20.10.6",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9",
+    "vue": "3.5.35",
+    "vue-router": "5.1.0",
+    "vue-tsc": "3.3.3",
+    "nuxt": "4.4.6"
   }
 }
