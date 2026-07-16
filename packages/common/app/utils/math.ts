@@ -21,3 +21,8 @@ export function lerp(a: number, b: number, n: number): number {
 export function toPercentage(min: number, max: number, value: number): number {
   return (value - min) / (max - min);
 }
+
+// TODO: docs
+export function getRandomIntBetween(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
