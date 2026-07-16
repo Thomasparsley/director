@@ -1,3 +1,12 @@
+<script setup lang="ts">
+import { ref } from "vue";
+
+const bold = ref(true);
+const pinned = ref(false);
+const view = ref("grid");
+const emphasis = ref<string[]>(["bold"]);
+</script>
+
 <template>
   <div class=":uno: flex flex-col gap-8">
     <p class=":uno: text-gray-600 dark:text-gray-300">
@@ -28,6 +37,145 @@
         <DButton disabled>
           Disabled
         </DButton>
+      </div>
+    </section>
+
+    <section class=":uno: flex flex-col gap-3">
+      <h2 class=":uno: text-sm font-semibold vtext-1">
+        Button groups
+      </h2>
+      <div class=":uno: flex flex-wrap items-center gap-4">
+        <DButtonGroup label="Fork options">
+          <DButton variant="control" size="sm">
+            <IconGitFork class=":uno: mr-1.5 h-3.5 w-3.5" />
+            Fork
+          </DButton>
+          <DButton variant="control" size="sm">
+            12
+          </DButton>
+          <DButton variant="control" size="sm" aria-label="More fork options">
+            <IconChevronDown class=":uno: h-3.5 w-3.5" />
+          </DButton>
+        </DButtonGroup>
+
+        <DButtonGroup>
+          <DButton color="primary">
+            Save
+          </DButton>
+          <DButton color="primary" aria-label="More save options">
+            <IconChevronDown class=":uno: h-4 w-4" />
+          </DButton>
+        </DButtonGroup>
+
+        <DButtonGroup orientation="vertical">
+          <DButton variant="control" size="sm">
+            Top
+          </DButton>
+          <DButton variant="control" size="sm">
+            Middle
+          </DButton>
+          <DButton variant="control" size="sm">
+            Bottom
+          </DButton>
+        </DButtonGroup>
+      </div>
+    </section>
+
+    <section class=":uno: flex flex-col gap-3">
+      <h2 class=":uno: text-sm font-semibold vtext-1">
+        Toggles
+      </h2>
+      <div class=":uno: flex flex-wrap items-center gap-3">
+        <DToggle v-model="bold" square label="Bold">
+          <IconBold class=":uno: h-4 w-4" />
+        </DToggle>
+        <DToggle v-model="pinned">
+          <IconPin class=":uno: h-4 w-4" />
+          Pinned
+        </DToggle>
+        <DToggle variant="ghost" square label="Italic">
+          <IconItalic class=":uno: h-4 w-4" />
+        </DToggle>
+        <DToggle size="sm">
+          Small
+        </DToggle>
+        <DToggle size="lg">
+          Large
+        </DToggle>
+        <DToggle disabled>
+          Disabled
+        </DToggle>
+      </div>
+    </section>
+
+    <section class=":uno: flex flex-col gap-3">
+      <h2 class=":uno: text-sm font-semibold vtext-1">
+        Toggle groups
+      </h2>
+      <div class=":uno: flex flex-wrap items-center gap-4">
+        <DToggleGroup v-model="view" type="single">
+          <DToggleGroupItem value="list">
+            List
+          </DToggleGroupItem>
+          <DToggleGroupItem value="grid">
+            Grid
+          </DToggleGroupItem>
+          <DToggleGroupItem value="board">
+            Board
+          </DToggleGroupItem>
+        </DToggleGroup>
+
+        <DToggleGroup v-model="emphasis" type="multiple" size="sm">
+          <DToggleGroupItem value="bold" square label="Bold">
+            <IconBold class=":uno: h-3.5 w-3.5" />
+          </DToggleGroupItem>
+          <DToggleGroupItem value="italic" square label="Italic">
+            <IconItalic class=":uno: h-3.5 w-3.5" />
+          </DToggleGroupItem>
+          <DToggleGroupItem value="underline" square label="Underline">
+            <IconUnderline class=":uno: h-3.5 w-3.5" />
+          </DToggleGroupItem>
+        </DToggleGroup>
+
+        <DToggleGroup type="single" size="lg" disabled>
+          <DToggleGroupItem value="on">
+            Disabled
+          </DToggleGroupItem>
+          <DToggleGroupItem value="off">
+            Group
+          </DToggleGroupItem>
+        </DToggleGroup>
+      </div>
+    </section>
+
+    <section class=":uno: flex flex-col gap-3">
+      <h2 class=":uno: text-sm font-semibold vtext-1">
+        Kbd
+      </h2>
+      <div class=":uno: flex flex-wrap items-center gap-4">
+        <span class=":uno: inline-flex items-center gap-1 text-sm vtext-2">
+          Command palette
+          <DKbd value="meta" />
+          <DKbd value="K" />
+        </span>
+        <span class=":uno: inline-flex items-center gap-1 text-sm vtext-2">
+          Save
+          <DKbd value="meta" variant="subtle" />
+          <DKbd value="S" variant="subtle" />
+        </span>
+        <span class=":uno: inline-flex items-center gap-1 text-sm vtext-2">
+          Submit
+          <DKbd value="shift" variant="outline" />
+          <DKbd value="enter" variant="outline" />
+        </span>
+        <span class=":uno: inline-flex items-center gap-1">
+          <DKbd value="alt" size="sm" />
+          <DKbd value="escape" size="sm" />
+        </span>
+        <span class=":uno: inline-flex items-center gap-1">
+          <DKbd value="arrowup" size="lg" />
+          <DKbd value="arrowdown" size="lg" />
+        </span>
       </div>
     </section>
 
