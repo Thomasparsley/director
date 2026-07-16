@@ -5,6 +5,8 @@ export default defineNuxtConfig({
     "@director/core",
     "@director/ui",
     "@director/forms",
+    "@director/form-ui",
+    "@director/filters",
   ],
 
   devtools: { enabled: true },

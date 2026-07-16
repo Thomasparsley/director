@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@director/core": "workspace:*",
+    "@director/filters": "workspace:*",
+    "@director/form-ui": "workspace:*",
     "@director/forms": "workspace:*",
     "@director/ui": "workspace:*",
     "@lucide/vue": "^1.0.0"

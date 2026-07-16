@@ -6,8 +6,8 @@ Monorepo for the `@director/*` reusable UI / admin product line, built as a chai
 @director/common   shared logic (utils, composables, types) — no components
       ▲         ▲
 @director/ui    @director/forms   reactive form model (controls, groups, validators) — no components
-      ▲
-@director/core     pre-built administration building blocks (extends ui)
+      ▲               ▲
+@director/core  @director/filters   URL-persisted filter state built on forms — no components
 ```
 
 Consuming apps (e.g. firesport) install and `extends: ["@director/core", "@director/forms"]`.
@@ -39,7 +39,8 @@ packages/
   ui/       @director/ui   (uno.config.ts + tokens + Histoire live here)
   core/     @director/core
   forms/    @director/forms
-playground/ dev app that extends @director/core + @director/forms
+  filters/  @director/filters
+playground/ dev app that extends @director/core + @director/forms + @director/filters
 ```
 
 ## Design tokens

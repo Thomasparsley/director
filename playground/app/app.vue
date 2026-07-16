@@ -9,6 +9,7 @@ import {
   PanelLeft,
   Settings,
   ShieldCheck,
+  TextCursorInput,
   Trophy,
   Users,
 } from "@lucide/vue";
@@ -26,6 +27,7 @@ const sections: Array<DNavigationSection> = [
         items: [
           { label: "Dashboard", icon: LayoutDashboard, to: "/" },
           { label: "Forms", icon: ClipboardList, to: "/forms" },
+          { label: "Form UI", icon: TextCursorInput, to: "/form-ui" },
           { label: "Web", icon: House, to: "/web" },
         ],
       },
