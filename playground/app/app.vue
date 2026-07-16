@@ -3,6 +3,7 @@ import { ref } from "vue";
 import {
   Building2,
   CalendarDays,
+  ClipboardList,
   House,
   LayoutDashboard,
   PanelLeft,
@@ -24,6 +25,7 @@ const sections: Array<DNavigationSection> = [
         key: "portal",
         items: [
           { label: "Dashboard", icon: LayoutDashboard, to: "/" },
+          { label: "Forms", icon: ClipboardList, to: "/forms" },
           { label: "Web", icon: House, to: "/web" },
         ],
       },
