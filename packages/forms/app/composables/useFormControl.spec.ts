@@ -1,8 +1,8 @@
-import { ref } from "vue";
+import { readonly, ref, type Ref } from "vue";
 import { describe, expect, test } from "vitest";
 
 import { FormStatus } from "../types/formStatus";
-import { requiredValidator } from "../validators";
+import { requiredValidator, ValidationError } from "../validators";
 
 import { useFormControl } from "./useFormControl";
 
@@ -199,6 +199,111 @@ describe("useFormControl - transformers", () => {
     control.transform();
 
     expect(control.data.value).toBe("John");
+  });
+});
+
+describe("useFormControl - edge cases", () => {
+  test("null initial value", () => {
+    const control = useFormControl<string | null>(null);
+
+    expect(control.data.value).toBeNull();
+
+    control.patch("filled");
+    expect(control.data.value).toBe("filled");
+  });
+
+  test("writes through a readonly ref source are ignored", () => {
+    const source = ref("John");
+    const control = useFormControl(readonly(source) as Readonly<Ref<string>>);
+
+    control.data.value = "Jane";
+
+    expect(control.data.value).toBe("John");
+    expect(source.value).toBe("John");
+  });
+
+  test("transform() does not mark the control dirty", () => {
+    const control = useFormControl("  John  ", {
+      lazyTransformers: [value => value.trim()],
+    });
+
+    control.transform();
+
+    expect(control.data.value).toBe("John");
+    expect(control.isPristine.value).toBe(true);
+  });
+
+  test("transform() without lazy transformers is a no-op", () => {
+    const control = useFormControl("  John  ");
+
+    control.transform();
+
+    expect(control.data.value).toBe("  John  ");
+  });
+
+  test("validate clears a stale error once the value is fixed", async () => {
+    const control = useFormControl("", { validators: [requiredValidator()] });
+
+    await control.validate();
+    expect(control.hasError.value).toBe(true);
+
+    control.data.value = "filled";
+    await control.validate();
+
+    expect(control.hasError.value).toBe(false);
+    expect(control.error.value).toBeNull();
+    expect(control.status.value).toBe(FormStatus.DIRTY);
+  });
+
+  test("markAsPristine clears a stored error", async () => {
+    const control = useFormControl("", { validators: [requiredValidator()] });
+
+    await control.validate();
+    expect(control.hasError.value).toBe(true);
+
+    control.markAsPristine();
+
+    expect(control.hasError.value).toBe(false);
+    expect(control.status.value).toBe(FormStatus.PRISTINE);
+  });
+
+  test("error wins over dirty in the status", async () => {
+    const control = useFormControl("John", { validators: [requiredValidator()] });
+
+    control.data.value = "";
+    await control.validate();
+
+    expect(control.isDirty.value).toBe(false);
+    expect(control.status.value).toBe(FormStatus.ERROR);
+  });
+
+  test("array control keeps array patches untouched", () => {
+    const control = useFormControl<Array<string>, Array<string> | string>(["a"]);
+
+    control.patch(["b", "c"]);
+
+    expect(control.data.value).toEqual(["b", "c"]);
+  });
+
+  test("replacing an array value and resetting restores the original", () => {
+    const control = useFormControl(["a", "b"]);
+
+    control.data.value = ["c"];
+    expect(control.isDirty.value).toBe(true);
+
+    control.reset();
+
+    expect(control.data.value).toEqual(["a", "b"]);
+  });
+
+  test("async validators are awaited", async () => {
+    const control = useFormControl("John", {
+      validators: [async (value: string) => value === "John" ? new ValidationError("taken") : null],
+    });
+
+    await control.validate();
+
+    expect(control.error.value?.message).toBe("taken");
   });
 });
 

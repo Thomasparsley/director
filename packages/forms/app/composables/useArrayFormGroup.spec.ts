@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import { FormStatus } from "../types/formStatus";
+import { requiredValidator } from "../validators";
 
 import { useArrayFormGroup } from "./useArrayFormGroup";
 import { useFormControl } from "./useFormControl";
@@ -99,6 +100,43 @@ describe("useArrayFormGroup", () => {
     group.patch([{ name: "Only" }]);
 
     expect(group.data.value).toEqual([{ name: "Only", phone: "111" }]);
+  });
+
+  test("patch with an empty array clears every item", () => {
+    const group = makeArrayGroup([
+      makeContactGroup("John", "111"),
+      makeContactGroup("Jane", "222"),
+    ]);
+
+    group.patch([]);
+
+    expect(group.data.value).toEqual([]);
+  });
+
+  test("empty collection is pristine", () => {
+    const group = makeArrayGroup([]);
+
+    expect(group.status.value).toBe(FormStatus.PRISTINE);
+    expect(group.data.value).toEqual([]);
+  });
+
+  test("onlyValidate surfaces the first item error, validate marks every item", async () => {
+    const validated = () => useFormGroup({
+      name: useFormControl("", { validators: [requiredValidator()] }),
+    });
+
+    const group = useArrayFormGroup([validated(), validated()], {
+      constructor: validated,
+    });
+
+    const error = await group.onlyValidate();
+    expect(error?.message).toBe("This field is required.");
+    expect(group.hasError.value).toBe(false);
+
+    await group.validate();
+    expect(group.controls[0]?.controls.name.hasError).toBe(true);
+    expect(group.controls[1]?.controls.name.hasError).toBe(true);
+    expect(group.hasError.value).toBe(true);
   });
 
   test("reset and save delegate to items", () => {

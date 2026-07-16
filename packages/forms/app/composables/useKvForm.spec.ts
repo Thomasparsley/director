@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import { FormStatus } from "../types/formStatus";
+import { requiredValidator } from "../validators";
 
 import { useFormControl, type FormControl } from "./useFormControl";
 import { useFormGroup } from "./useFormGroup";
@@ -94,6 +95,74 @@ describe("useKvForm - with controls", () => {
 
     expect(form.data.value).toEqual({});
     expect(form.keys.value).toEqual([]);
+  });
+});
+
+describe("useKvForm - edge cases", () => {
+  test("builder receives the key and the incoming value", () => {
+    const seen: Array<[string, string]> = [];
+
+    const form = useKvForm<string, FormControl<string>>(
+      {},
+      {
+        builder: (key, value) => {
+          seen.push([key, value]);
+          return useFormControl(value);
+        },
+      },
+    );
+
+    form.patch({ alpha: "A", beta: "B" });
+
+    expect(seen).toEqual([["alpha", "A"], ["beta", "B"]]);
+  });
+
+  test("markAsDirty propagates to controls", () => {
+    const control = useFormControl("a");
+    const form = useKvForm({ control });
+
+    form.markAsDirty();
+
+    expect(control.isDirty.value).toBe(true);
+    expect(form.isDirty.value).toBe(true);
+  });
+
+  test("reset and save delegate to controls", () => {
+    const control = useFormControl("a");
+    const form = useKvForm({ control });
+
+    control.data.value = "b";
+    form.save();
+    expect(form.isPristine.value).toBe(true);
+
+    control.data.value = "c";
+    form.reset();
+    expect(form.data.value).toEqual({ control: "b" });
+  });
+
+  test("keys stay in sync with dynamic controls", () => {
+    const form = useKvForm<"a" | "b">({ a: useFormControl(1) });
+
+    expect(form.keys.value).toEqual(["a"]);
+
+    form.setControl("b", useFormControl(2));
+    expect(form.keys.value).toEqual(["a", "b"]);
+
+    form.removeControl("a");
+    expect(form.keys.value).toEqual(["b"]);
+  });
+
+  test("validation aggregates across controls", async () => {
+    const form = useKvForm({
+      filled: useFormControl("ok", { validators: [requiredValidator()] }),
+      empty: useFormControl("", { validators: [requiredValidator()] }),
+    });
+
+    await form.validate();
+
+    expect(form.hasError.value).toBe(true);
+    expect(form.controls.empty?.hasError).toBe(true);
+    expect(form.controls.filled?.hasError).toBe(false);
   });
 });
 

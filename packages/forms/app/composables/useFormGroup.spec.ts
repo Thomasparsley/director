@@ -189,6 +189,70 @@ describe("useFormGroup - nullable", () => {
   });
 });
 
+describe("useFormGroup - edge cases", () => {
+  test("patch ignores keys without a matching control", () => {
+    const group = useFormGroup({ name: useFormControl("John") });
+
+    group.patch({ name: "Jane", unknown: "ignored" } as never);
+
+    expect(group.data.value).toEqual({ name: "Jane" });
+  });
+
+  test("onlyValidate returns the first child error without storing it", async () => {
+    const name = useFormControl("", { validators: [requiredValidator({ errorMessage: "name required" })] });
+    const email = useFormControl("", { validators: [requiredValidator({ errorMessage: "email required" })] });
+    const group = useFormGroup({ name, email });
+
+    const error = await group.onlyValidate();
+
+    expect(error?.message).toBe("name required");
+    expect(name.hasError.value).toBe(false);
+    expect(group.hasError.value).toBe(false);
+  });
+
+  test("validate stores an error on every invalid child, not just the first", async () => {
+    const name = useFormControl("", { validators: [requiredValidator()] });
+    const email = useFormControl("", { validators: [requiredValidator()] });
+    const group = useFormGroup({ name, email });
+
+    await group.validate();
+
+    expect(name.hasError.value).toBe(true);
+    expect(email.hasError.value).toBe(true);
+  });
+
+  test("setControls(null) is ignored on non-nullable groups", () => {
+    const group = useFormGroup({ name: useFormControl("John") });
+
+    group.setControls(null as never);
+
+    expect(group.data.value).toEqual({ name: "John" });
+  });
+
+  test("patching a nullable group without a constructor is a no-op", () => {
+    const group = useFormGroup<{ name: FormControl<string> }, true>(null);
+
+    group.patch({ name: "Patched" });
+
+    expect(group.controls).toBeNull();
+    expect(group.data.value).toBeNull();
+  });
+
+  test("an empty non-nullable group is pristine and has empty data", () => {
+    const group = useFormGroup({});
+
+    expect(group.data.value).toEqual({});
+    expect(group.status.value).toBe(FormStatus.PRISTINE);
+  });
+
+  test("each group gets a distinct key", () => {
+    const first = useFormGroup({ name: useFormControl("a") });
+    const second = useFormGroup({ name: useFormControl("b") });
+
+    expect(first.key).not.toBe(second.key);
+  });
+});
+
 describe("useFormGroup - nested", () => {
   test("nested groups aggregate data deeply", () => {
     const addressGroup = useFormGroup({

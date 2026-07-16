@@ -79,6 +79,61 @@ describe("useFormSubmit", () => {
     expect(form.isPending.value).toBe(false);
   });
 
+  test("submit errors fall back to console.error by default", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => { });
+
+    try {
+      const form = useFormGroup({ name: useFormControl("John") });
+      const failure = new Error("boom");
+
+      const submit = useFormSubmit(form, () => {
+        throw failure;
+      });
+
+      form.patch({ name: "Jane" });
+      await submit.executeSubmit();
+
+      expect(consoleError).toHaveBeenCalledWith(failure);
+    }
+    finally {
+      consoleError.mockRestore();
+    }
+  });
+
+  test("the after-success function does not run when the submit throws", async () => {
+    const form = useFormGroup({ name: useFormControl("John") });
+    const afterFn = vi.fn();
+
+    const submit = useFormSubmit(
+      form,
+      () => {
+        throw new Error("boom");
+      },
+      { onError: () => { } },
+    );
+
+    form.patch({ name: "Jane" });
+    await submit.executeSubmit();
+
+    expect(afterFn).not.toHaveBeenCalled();
+  });
+
+  test("a failed validation clears the submit state so the user can retry", async () => {
+    const name = useFormControl("", { validators: [requiredValidator()] });
+    const form = useFormGroup({ name });
+    const onSubmit = vi.fn();
+
+    const submit = useFormSubmit(form, onSubmit);
+
+    form.markAsDirty();
+    await submit.executeSubmit();
+    expect(onSubmit).not.toHaveBeenCalled();
+
+    name.patch("filled");
+    await submit.executeSubmit();
+    expect(onSubmit).toHaveBeenCalledOnce();
+  });
+
   test("ignores re-entrant submits", async () => {
     const form = useFormGroup({ name: useFormControl("John") });
 

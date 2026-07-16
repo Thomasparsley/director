@@ -1,5 +1,7 @@
 import { describe, expect, test } from "vitest";
 
+import { requiredValidator } from "../validators";
+
 import { useDateFormControl } from "./useDateFormControl";
 
 describe("useDateFormControl", () => {
@@ -41,5 +43,31 @@ describe("useDateFormControl", () => {
 
     expect(control.data.value.toISOString()).toBe("2024-06-15T12:00:00.000Z");
     expect(control.isPristine.value).toBe(true);
+  });
+
+  test("an unparsable string produces an Invalid Date without throwing", () => {
+    const control = useDateFormControl("not a date");
+
+    expect(control.data.value).toBeInstanceOf(Date);
+    expect(isNaN(control.data.value.getTime())).toBe(true);
+  });
+
+  test("requiredValidator treats an invalid date as empty", async () => {
+    const control = useDateFormControl(null, { validators: [requiredValidator()] });
+
+    await control.validate();
+    expect(control.hasError.value).toBe(true);
+
+    control.data.value = "2024-06-15";
+    await control.validate();
+    expect(control.hasError.value).toBe(false);
+  });
+
+  test("patching null clears the date back to invalid", () => {
+    const control = useDateFormControl("2024-06-15");
+
+    control.patch(null);
+
+    expect(isNaN(control.data.value.getTime())).toBe(true);
   });
 });
