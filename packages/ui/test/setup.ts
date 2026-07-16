@@ -7,3 +7,11 @@ if (!globalThis.ResizeObserver) {
     disconnect() {}
   } as unknown as typeof ResizeObserver;
 }
+
+// reka's SelectTrigger releases pointer capture in its pointerdown handler; happy-dom
+// elements don't implement the pointer-capture API, so stub it as a no-op.
+if (!Element.prototype.hasPointerCapture) {
+  Element.prototype.hasPointerCapture = () => false;
+  Element.prototype.releasePointerCapture = () => {};
+  Element.prototype.setPointerCapture = () => {};
+}

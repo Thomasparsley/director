@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@director/common": "workspace:*",
+    "@internationalized/date": "3.12.2",
     "@nuxtjs/color-mode": "4.0.0",
     "@unocss/nuxt": "66.7.4",
     "@unocss/transformer-compile-class": "66.7.4",
