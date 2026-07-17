@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { Inbox, SearchX } from "@lucide/vue";
 
 const bold = ref(true);
 const pinned = ref(false);
@@ -218,6 +219,113 @@ const emphasis = ref<string[]>(["bold"]);
         <DChip color="success" :text="4" />
         <DChip color="error" :text="12" />
         <DChip color="warn" size="lg" />
+      </div>
+    </section>
+
+    <section class=":uno: flex flex-col gap-3">
+      <h2 class=":uno: text-sm font-semibold vtext-1">
+        Cards
+      </h2>
+      <div class=":uno: grid gap-4 md:grid-cols-2">
+        <DCard
+          title="Outline"
+          description="The default surface — frosted glass over a hairline ring."
+        >
+          <p class=":uno: text-sm vtext-2">
+            Body content sits between the header and the footer, and the dividers appear on
+            their own.
+          </p>
+          <template #footer>
+            <DButton size="sm" color="primary">
+              Save
+            </DButton>
+          </template>
+        </DCard>
+
+        <DCard variant="soft" title="Soft" description="Elevation with no edge.">
+          <p class=":uno: text-sm vtext-2">
+            No ring — the shadow does the work.
+          </p>
+        </DCard>
+
+        <DCard variant="subtle" title="Subtle" description="Ring and a deeper shadow.">
+          <p class=":uno: text-sm vtext-2">
+            For a card that has to lift off a busy background.
+          </p>
+        </DCard>
+
+        <DCard variant="solid" title="Solid" description="The inverted surface.">
+          <p class=":uno: text-sm text-white/70 dark:text-gray-900/70">
+            The only opaque fill — text inverts against the colour mode.
+          </p>
+        </DCard>
+
+        <DCard>
+          <p class=":uno: text-sm vtext-2">
+            Body only: no header, no footer, no dividers.
+          </p>
+        </DCard>
+
+        <DCard title="Header slot">
+          <template #header>
+            <div class=":uno: flex items-center justify-between">
+              <span class=":uno: text-base font-semibold vtext-1">Custom header</span>
+              <DBadge color="success">Live</DBadge>
+            </div>
+          </template>
+          <p class=":uno: text-sm vtext-2">
+            The header slot replaces the whole title/description block.
+          </p>
+        </DCard>
+      </div>
+    </section>
+
+    <section class=":uno: flex flex-col gap-3">
+      <h2 class=":uno: text-sm font-semibold vtext-1">
+        Empty
+      </h2>
+      <div class=":uno: grid gap-4 md:grid-cols-2">
+        <DEmpty
+          :icon="Inbox"
+          title="No projects found"
+          description="It looks like you haven't added any projects. Create one to get started."
+        >
+          <template #actions>
+            <DButton color="primary" size="sm">
+              New project
+            </DButton>
+            <DButton variant="control" size="sm">
+              Import
+            </DButton>
+          </template>
+        </DEmpty>
+
+        <DEmpty
+          variant="soft"
+          size="sm"
+          :icon="SearchX"
+          title="No results"
+          description="Try a different search term."
+        />
+
+        <DEmpty
+          variant="solid"
+          :icon="Inbox"
+          title="Inbox zero"
+          description="Nothing left to read."
+        />
+
+        <!-- naked is the variant for an empty state dropped into a box that already exists. -->
+        <DCard title="Members" description="Nested: a naked empty state inside a card.">
+          <DEmpty
+            variant="naked"
+            size="xs"
+            :icon="Inbox"
+            title="No members yet"
+            description="Invite someone to get started."
+            title-level="h4"
+          />
+        </DCard>
       </div>
     </section>
 
