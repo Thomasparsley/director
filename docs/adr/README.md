@@ -27,10 +27,12 @@ are mostly subject lines only. This is where it lives from now on.
 | [0014](0014-submit-returns-a-callback.md) | `useFormSubmit` returns a callback for post-success work | Accepted |
 | [0015](0015-a-filter-is-a-formgroup.md) | A filter is a FormGroup with a storage backend | Accepted |
 | [0016](0016-navigation-resolves-its-active-item-once.md) | AppShell is layout only; navigation resolves its active item once | Accepted |
+| [0017](0017-dialogs-hold-state-not-paint.md) | The dialogs layer holds dialog state, and does not paint it | Accepted |
 
 ## Reading order
 
-- **How the packages fit together** — 0001, 0002, 0003.
+- **How the packages fit together** — 0001, 0002, 0003. 0017 places a layer on that
+  graph and is the worked example of applying 0002 to a new one.
 - **Writing a component** — 0005, 0006, 0007.
 - **The forms stack** — 0010 first, then 0011 – 0014. 0015 builds on all of them.
 - **Why the toolchain looks like that** — 0004 and 0008 are both downstream of
@@ -50,14 +52,28 @@ obvious from the file names:
 - **ADR-0002 (forms is a sibling of ui)** exists because of ADR-0015. Read them
   together or the layer graph looks like over-engineering.
 
+## A note on firesport
+
+Several packages here started as ports of firesport's layers, and some ADRs say so —
+it is real history and worth keeping. But firesport is a private repo, and this
+project is meant to be consumed by several apps, so an ADR can never assume
+the reader has firesport checked out beside it.
+
+Mentioning firesport as **provenance** is fine: "ported from firesport," "firesport's
+split was right and we keep it." Pointing **into** it — a `repo/path/file.ts:42`
+citation the reader would need to open to follow the argument — is not: transform it
+into a self-contained description of what that code did, inline, so the ADR stands on
+its own without firesport access. [ADR-0017](0017-dialogs-hold-state-not-paint.md)'s
+bug list is the pattern to follow.
+
+The same rule applies to otlpobs and any future consumer: name them as examples of
+"a consumer," never as a fact this repo's docs depend on.
+
 ## Cross-repo
 
-otlpobs consumes these packages and has its own ADR for it —
-[otlpobs ADR-0014](../../../otlpobs/docs/adr/0014-nuxt-client-and-director-layers.md),
-"Nuxt 4 client built on the @director/* layers". It documents the consumer side of
-ADR-0001 and ADR-0004: the `link:` specifiers, the duplicate-Vue
-transpile/dedupe workaround, and the matching TypeScript 6 override. **Both repos
-have to stay off TS 7 for either to build** — a change to ADR-0004 is a change
-there too.
-</content>
-</invoke>
+This repo is meant to be consumed by several apps, each linking the packages as
+Nuxt layers rather than installing a build. A consumer repo's own ADR for that
+setup documents the other side of ADR-0001 and ADR-0004: the `link:`
+specifiers, the duplicate-Vue transpile/dedupe workaround, and the matching
+TypeScript 6 override. **A consumer and this repo have to stay off TS 7
+together** — a change to ADR-0004 is a change on the consumer side too.

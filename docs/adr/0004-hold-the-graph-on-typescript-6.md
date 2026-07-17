@@ -42,10 +42,11 @@ TS-7-compatible resolver); at that point the override can be dropped.
 
 ## Consequences
 
-- **This pin is shared with consumers, and neither side can move alone.** otlpobs
-  carries the same override for the same reason (otlpobs ADR-0014): it compiles
-  our SFCs from source (ADR-0001), so *its* TypeScript is what runs *our*
-  `compiler-sfc`. Both repos have to stay off TS 7 for either to build.
+- **This pin is shared with consumers, and neither side can move alone.** A
+  consumer carries the same override for the same reason (see its own ADR): it
+  compiles our SFCs from source (ADR-0001), so *its* TypeScript is what runs
+  *our* `compiler-sfc`. A consumer and this repo have to stay off TS 7
+  together for either to build.
 - The convention in ADR-0005 is what makes this load-bearing. A repo whose SFCs
   declared their props inline would never touch the `ts.sys` path. We chose the
   split deliberately and this is part of its price — see also ADR-0007, where the

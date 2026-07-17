@@ -4,9 +4,9 @@ Monorepo for the `@director/*` reusable UI / admin product line, built as a chai
 
 ```
 @director/common   shared logic (utils, composables, types) — no components
-      ▲                    ▲
-@director/ui         @director/forms   reactive form model (controls, groups, validators) — no components
-      ▲    ▲            ▲       ▲
+      ▲                    ▲                    ▲
+@director/ui         @director/forms      @director/dialogs   open a component as a modal / sheet
+      ▲    ▲            ▲       ▲                             from anywhere — state only, no components
       │    └─ @director/form-ui │     inputs bound to a FormControl (<DFormInput>) — the ui × forms bridge
       │                         │
 @director/core            @director/filters   URL-persisted filter state built on forms — no components
@@ -47,6 +47,7 @@ packages/
   forms/    @director/forms
   form-ui/  @director/form-ui
   filters/  @director/filters
+  dialogs/  @director/dialogs
 playground/ dev app that extends the whole chain — the only place it is assembled for real
 ```
 

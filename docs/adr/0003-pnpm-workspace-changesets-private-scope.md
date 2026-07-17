@@ -39,9 +39,10 @@ module' issues. Narrow later with public-hoist-pattern if desired."*
 
 - Nothing has been published yet: every package sits at `version: 0.0.0` and
   `.changeset/` contains only `config.json` — no changeset has ever been
-  recorded. Consumers therefore link the checkout instead (otlpobs ADR-0014 does
-  precisely this, and pays for it: its client is unbuildable without `../director`
-  checked out beside it). **The publish path is designed but unexercised**; the
+  recorded. Consumers therefore link the checkout instead (a consumer's own ADR
+  documents doing precisely this, and paying for it: its client is unbuildable
+  without `../director` checked out beside it). **The publish path is designed
+  but unexercised**; the
   first `changeset publish` will be the first test of the `files` lists, the
   `exports` maps, and the registry auth.
 - `shamefully-hoist` is a blunt instrument: it hides missing dependencies. A

@@ -44,8 +44,8 @@ Concretely:
 
 - There is no build to run, no `dist/` to keep in sync, and no dual
   ESM/CJS story. Editing a component in this repo is immediately live in any app
-  that links it — otlpobs's client does exactly that (see otlpobs ADR-0014) and
-  hot-reloads across the repo boundary.
+  that links it — a consumer's Nuxt client does exactly that (see its own ADR
+  for the setup) and hot-reloads across the repo boundary.
 - **Consumers compile our source**, so our TypeScript and our Vue SFCs must be
   digestible by *their* toolchain. That is not free: it is the whole reason
   ADR-0004 has to hold the graph on TypeScript 6, and the reason a consumer's
