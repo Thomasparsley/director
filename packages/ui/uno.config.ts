@@ -1,11 +1,17 @@
-// uno.config.ts — @director/ui theme.
+// uno.config.ts — @director/ui theme. Two tiers, split on how a value flips for dark mode:
 //
-// Color palette only (ported from firesport). The previous CSS-variable token layer
-// (uno.variables.ts / uno.preflight.ts, the `vbg-`/`vtext-` rules and `cmp-*` shortcuts)
-// has been removed — colors are exposed directly through the UnoCSS theme, e.g.
-// `bg-primary-600`, `text-gray-900`, `dark:text-gray-50`.
+//   1. The palette (ported from firesport) is exposed directly through the UnoCSS theme —
+//      `bg-primary-600`, `text-gray-900`, `dark:text-gray-50`. Use this in markup.
+//   2. The `vtext-`/`vbg-` ramp below is color-mode aware: same CSS variable under `:root`
+//      and `.dark`, so it flips with no `dark:` variant. Use it in cva strings, where a
+//      `dark:` twin for every rule would be noise.
+//
+// What went away with the firesport import: the separate uno.variables.ts / uno.preflight.ts
+// files and the `cmp-*` component shortcuts — the latter competed with cva for the same job.
+// The `vtext-`/`vbg-` rules survived, inline, because tier 2 earns its keep.
 //
 // Consuming apps re-export this from their own uno.config so @unocss/nuxt can discover it.
+// See docs/adr/0007-design-tokens-palette-in-the-uno-theme.md.
 
 import {
   defineConfig,
