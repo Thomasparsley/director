@@ -11,6 +11,12 @@ dist
 # TypeScript
 *.tsbuildinfo
 
+# Playwright
+playwright-report
+test-results
+blob-report
+.playwright
+
 # Env
 .env
 .env.*

@@ -4,11 +4,16 @@ import {
   Building2,
   CalendarDays,
   ClipboardList,
+  Filter,
   House,
+  KeyRound,
   LayoutDashboard,
   PanelLeft,
   Settings,
+  Share2,
   ShieldCheck,
+  SquareStack,
+  SunMoon,
   TextCursorInput,
   Trophy,
   Users,
@@ -17,6 +22,13 @@ import {
 import type { DNavigationSection } from "#layers/director-core/app/types/navigation";
 
 const collapsed = ref(false);
+
+// Static icon/label so the button doesn't hydrate differently from its SSR markup —
+// only the click handler reads the resolved mode.
+const colorMode = useColorMode();
+function toggleTheme() {
+  colorMode.preference = colorMode.value === "dark" ? "light" : "dark";
+}
 
 const sections: Array<DNavigationSection> = [
   {
@@ -28,6 +40,10 @@ const sections: Array<DNavigationSection> = [
           { label: "Dashboard", icon: LayoutDashboard, to: "/" },
           { label: "Forms", icon: ClipboardList, to: "/forms" },
           { label: "Form UI", icon: TextCursorInput, to: "/form-ui" },
+          { label: "Filters", icon: Filter, to: "/filters" },
+          { label: "Dialogs", icon: SquareStack, to: "/dialogs" },
+          { label: "Identity", icon: KeyRound, to: "/identity" },
+          { label: "GraphQL", icon: Share2, to: "/gql" },
           { label: "Web", icon: House, to: "/web" },
         ],
       },
@@ -76,13 +92,23 @@ const sections: Array<DNavigationSection> = [
           class=":uno: text-sm font-semibold vtext-1"
         >Director</span>
 
-        <DButton
-          size="icon_sm"
-          aria-label="Toggle sidebar"
-          @click="collapsed = !collapsed"
-        >
-          <PanelLeft class=":uno: h-4 w-4" />
-        </DButton>
+        <div class=":uno: flex items-center gap-1">
+          <DButton
+            size="icon_sm"
+            aria-label="Toggle theme"
+            @click="toggleTheme"
+          >
+            <SunMoon class=":uno: h-4 w-4" />
+          </DButton>
+
+          <DButton
+            size="icon_sm"
+            aria-label="Toggle sidebar"
+            @click="collapsed = !collapsed"
+          >
+            <PanelLeft class=":uno: h-4 w-4" />
+          </DButton>
+        </div>
       </div>
 
       <DNavigation
@@ -93,5 +119,7 @@ const sections: Array<DNavigationSection> = [
     </template>
 
     <NuxtPage />
+
+    <DialogHost />
   </DAppShell>
 </template>

@@ -7,6 +7,9 @@ export default defineNuxtConfig({
     "@director/forms",
     "@director/form-ui",
     "@director/filters",
+    "@director/dialogs",
+    "@director/identity",
+    "@director/gql",
   ],
 
   devtools: { enabled: true },

@@ -1,0 +1,81 @@
+{
+  "name": "@director/gql",
+  "version": "0.0.0",
+  "description": "A configured urql client for Nuxt with typed query/mutation/subscription composables \u2014 SSR payload hydration, abortable queries, persisted documents. No components.",
+  "keywords": [
+    "nuxt",
+    "nuxt-layer",
+    "vue",
+    "graphql",
+    "urql",
+    "gql.tada",
+    "director"
+  ],
+  "homepage": "https://github.com/Thomasparsley/director/tree/main/packages/gql#readme",
+  "bugs": "https://github.com/Thomasparsley/director/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Thomasparsley/director.git",
+    "directory": "packages/gql"
+  },
+  "license": "MIT",
+  "author": "Tom\u00e1\u0161 Petr\u017eela <info@thomasparsley.cz>",
+  "type": "module",
+  "main": "./nuxt.config.ts",
+  "files": [
+    "app",
+    "transports",
+    "nuxt.config.ts",
+    "!app/**/*.spec.ts",
+    "!transports/**/*.spec.ts"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev:prepare": "nuxt prepare",
+    "typecheck": "nuxt prepare && vue-tsc -b --noEmit && vue-tsc -p tsconfig.test.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:integration": "vitest run --config vitest.integration.config.ts"
+  },
+  "dependencies": {
+    "@director/common": "workspace:*",
+    "@vueuse/core": "14.3.0",
+    "ohash": "^2.0.11",
+    "wonka": "^6.3.5"
+  },
+  "peerDependencies": {
+    "@urql/core": "^6",
+    "gql.tada": "^1.9",
+    "graphql": "^16.8",
+    "graphql-ws": "^6",
+    "nuxt": "^4",
+    "vue": "^3.5"
+  },
+  "peerDependenciesMeta": {
+    "graphql-ws": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@nuxt/test-utils": "^3.19.2",
+    "@types/node": "^22",
+    "@types/ws": "^8.5.13",
+    "@urql/core": "6.0.1",
+    "@vue/test-utils": "^2.4.11",
+    "gql.tada": "1.9.2",
+    "graphql": "16.11.0",
+    "graphql-ws": "6.0.8",
+    "happy-dom": "^20.10.6",
+    "nuxt": "4.4.6",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9",
+    "vue": "3.5.35",
+    "vue-tsc": "3.3.3",
+    "ws": "^8.18.0"
+  }
+}

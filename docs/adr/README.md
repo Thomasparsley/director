@@ -13,7 +13,7 @@ are mostly subject lines only. This is where it lives from now on.
 | --- | ----- | ------ |
 | [0001](0001-nuxt-layers-not-a-built-library.md) | Ship the packages as Nuxt layers, not a built component library | Accepted |
 | [0002](0002-the-layer-graph.md) | The layer graph: two chains from common, joined at form-ui | Accepted |
-| [0003](0003-pnpm-workspace-changesets-private-scope.md) | pnpm workspace, Changesets, and the private @director scope | Accepted |
+| [0003](0003-pnpm-workspace-changesets-private-scope.md) | pnpm workspace, Changesets, and the private @director scope | Accepted (registry superseded by [0020](0020-publish-publicly-to-npm.md)) |
 | [0004](0004-hold-the-graph-on-typescript-6.md) | Hold the whole graph on TypeScript 6 | Accepted |
 | [0005](0005-one-component-four-files.md) | One component, four files (.vue / .types / .variants / .spec) | Accepted |
 | [0006](0006-reka-ui-and-component-context.md) | reka-ui for behaviour, symbol-keyed context for compound components | Accepted |
@@ -28,15 +28,26 @@ are mostly subject lines only. This is where it lives from now on.
 | [0015](0015-a-filter-is-a-formgroup.md) | A filter is a FormGroup with a storage backend | Accepted |
 | [0016](0016-navigation-resolves-its-active-item-once.md) | AppShell is layout only; navigation resolves its active item once | Accepted |
 | [0017](0017-dialogs-hold-state-not-paint.md) | The dialogs layer holds dialog state, and does not paint it | Accepted |
+| [0018](0018-e2e-through-the-playground.md) | E2E through the playground, with Playwright | Accepted |
+| [0019](0019-the-identity-layer.md) | The identity layer: session state behind an app-supplied API interface | Accepted |
+| [0020](0020-publish-publicly-to-npm.md) | Publish the @director scope publicly to npm | Accepted |
+| [0021](0021-the-gql-layer.md) | The gql layer: one configured urql client behind app.config | Accepted |
+| [0022](0022-integration-tests-against-a-real-nuxt-server.md) | Integration tests against a real Nuxt server | Accepted |
 
 ## Reading order
 
 - **How the packages fit together** — 0001, 0002, 0003. 0017 places a layer on that
   graph and is the worked example of applying 0002 to a new one.
+- **Configuring a layer from the consuming app** — 0019 then 0021. Both answer the same
+  question (the app supplies the transport, the layer supplies the flows) and 0021 is the
+  second application of the pattern, so the shape is deliberate rather than incidental.
 - **Writing a component** — 0005, 0006, 0007.
 - **The forms stack** — 0010 first, then 0011 – 0014. 0015 builds on all of them.
 - **Why the toolchain looks like that** — 0004 and 0008 are both downstream of
   0001 and 0005; neither makes sense on its own.
+- **How things are tested** — 0008 (unit), 0022 (integration), 0018 (E2E), in that
+  order. Each names the boundary it will not cross, and the three only make sense
+  read together.
 
 ## A note on the taxes
 

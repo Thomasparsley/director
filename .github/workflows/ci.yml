@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Cheap gates first: lint, typecheck, and the per-package Vitest suites.
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      # Middle tier: the layers driven against a REAL Nuxt server over HTTP and a
+      # WebSocket (ADR-0022). Builds a small fixture app, so it belongs after the
+      # fast unit run but well before the browser suite.
+      - run: pnpm test:integration
+
+  # Expensive gate: real Nuxt build + Playwright against the assembled layer chain.
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install Playwright browser
+        run: pnpm --filter @director/playground exec playwright install --with-deps chromium
+      # The webServer block in playwright.config.ts runs `pnpm build` itself.
+      - run: pnpm test:e2e
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playground/playwright-report/
+          retention-days: 7

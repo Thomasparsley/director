@@ -1,0 +1,29 @@
+{
+  // Nuxt's generated tsconfigs cover `app/` only, so the specs and their helpers would
+  // otherwise never be typechecked — esbuild strips types at run time, so a type error in
+  // a spec is invisible until it rots into a real one. This project covers them, with the
+  // same aliases the Vitest configs declare.
+  //
+  // `test/fixture/**` is deliberately out of scope: it is a Nuxt app, and typechecking it
+  // properly means preparing it first. It is covered instead by being built and run for
+  // real in the integration tier, where a compile error fails loudly.
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "lib": ["ESNext", "DOM"],
+    "types": ["node"],
+    "paths": {
+      "#app": ["./test/nuxtApp.ts"],
+      "#layers/director-gql/*": ["./*"],
+      "#layers/director-common/*": ["../common/*"]
+    }
+  },
+  "include": [
+    "test/*.ts",
+    "test/integration/**/*.ts",
+    "transports/**/*.ts"
+  ],
+  "exclude": [
+    "test/fixture/**"
+  ]
+}

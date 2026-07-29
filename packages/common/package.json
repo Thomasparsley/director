@@ -1,17 +1,38 @@
 {
   "name": "@director/common",
   "version": "0.0.0",
+  "description": "Shared logic for the @director layer chain — utils, composables and types. A Nuxt layer with no components.",
+  "keywords": [
+    "nuxt",
+    "nuxt-layer",
+    "vue",
+    "composables",
+    "director"
+  ],
+  "homepage": "https://github.com/Thomasparsley/director/tree/main/packages/common#readme",
+  "bugs": "https://github.com/Thomasparsley/director/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Thomasparsley/director.git",
+    "directory": "packages/common"
+  },
+  "license": "MIT",
+  "author": "Tomáš Petržela <info@thomasparsley.cz>",
   "type": "module",
   "main": "./nuxt.config.ts",
   "files": [
     "app",
-    "nuxt.config.ts"
+    "nuxt.config.ts",
+    "!app/**/*.spec.ts"
   ],
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
   },
   "scripts": {
-    "postinstall": "nuxt prepare",
+    "dev:prepare": "nuxt prepare",
     "typecheck": "nuxt prepare && vue-tsc -b --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"

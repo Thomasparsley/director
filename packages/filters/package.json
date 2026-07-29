@@ -1,6 +1,25 @@
 {
   "name": "@director/filters",
   "version": "0.0.0",
+  "description": "URL-persisted page filter state for Nuxt, built on @director/forms. A Nuxt layer with no components.",
+  "keywords": [
+    "nuxt",
+    "nuxt-layer",
+    "vue",
+    "filters",
+    "query-params",
+    "forms",
+    "director"
+  ],
+  "homepage": "https://github.com/Thomasparsley/director/tree/main/packages/filters#readme",
+  "bugs": "https://github.com/Thomasparsley/director/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Thomasparsley/director.git",
+    "directory": "packages/filters"
+  },
+  "license": "MIT",
+  "author": "Tomáš Petržela <info@thomasparsley.cz>",
   "type": "module",
   "main": "./nuxt.config.ts",
   "files": [
@@ -9,10 +28,13 @@
     "!app/**/*.spec.ts"
   ],
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
   },
   "scripts": {
-    "postinstall": "nuxt prepare",
+    "dev:prepare": "nuxt prepare",
     "typecheck": "nuxt prepare && vue-tsc -b --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"

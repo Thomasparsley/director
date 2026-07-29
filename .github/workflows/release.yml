@@ -1,0 +1,72 @@
+name: Release
+
+on:
+  push:
+    tags:
+      # GitHub tag filters are globs, not regular expressions: `+` means "one or
+      # more of the preceding character", so this matches v0.1.0 and v1.12.10
+      # alike. Written as `v[0-9].[0-9].[0-9]` it would stop matching at v0.10.0.
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # npm provenance
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the ancestry check below needs real history
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      # A tag is just a pointer, and one can be pushed from any branch. Publishing
+      # cannot be undone after 72 hours, so refuse a tag whose commit never landed
+      # on main.
+      - name: Verify the tag is on main
+        run: |
+          git fetch --no-tags origin main
+          git merge-base --is-ancestor "$GITHUB_SHA" FETCH_HEAD \
+            || { echo "::error::$GITHUB_REF_NAME points at a commit that is not on main"; exit 1; }
+
+      - run: pnpm install --frozen-lockfile
+
+      # `pnpm version-packages` has to run *before* tagging. A leftover changeset
+      # means the manifests still carry the previous versions — the publish would
+      # be a silent no-op, or would ship versions no changelog describes.
+      - name: Verify no changesets are pending
+        run: |
+          pending=$(find .changeset -name '*.md' ! -name 'README.md' | wc -l | tr -d ' ')
+          if [ "$pending" -ne 0 ]; then
+            echo "::error::$pending unreleased changeset(s) — run 'pnpm version-packages', commit, then re-tag"
+            exit 1
+          fi
+
+      # The packages ship raw source (ADR-0001), so there is nothing to build. CI
+      # already gated this commit on main; re-running the cheap checks here means a
+      # release never depends on that having happened.
+      - run: pnpm typecheck
+      - run: pnpm test
+
+      # Publishes every package whose version is not already on the registry and
+      # skips the rest — so a tag that bumped one layer publishes one package.
+      - run: pnpm release
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # pnpm has no --provenance flag; it shells out to the npm CLI, which
+          # reads this. Needs the id-token permission above.
+          NPM_CONFIG_PROVENANCE: "true"

@@ -1,6 +1,25 @@
 {
   "name": "@director/form-ui",
   "version": "0.0.0",
+  "description": "The bridge between @director/forms and @director/ui — <DForm*> inputs bound to a FormControl.",
+  "keywords": [
+    "nuxt",
+    "nuxt-layer",
+    "vue",
+    "forms",
+    "ui",
+    "components",
+    "director"
+  ],
+  "homepage": "https://github.com/Thomasparsley/director/tree/main/packages/form-ui#readme",
+  "bugs": "https://github.com/Thomasparsley/director/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Thomasparsley/director.git",
+    "directory": "packages/form-ui"
+  },
+  "license": "MIT",
+  "author": "Tomáš Petržela <info@thomasparsley.cz>",
   "type": "module",
   "main": "./nuxt.config.ts",
   "files": [
@@ -9,10 +28,13 @@
     "!app/**/*.spec.ts"
   ],
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
   },
   "scripts": {
-    "postinstall": "nuxt prepare",
+    "dev:prepare": "nuxt prepare",
     "typecheck": "nuxt prepare && vue-tsc -b --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"

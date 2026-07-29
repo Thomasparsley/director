@@ -1,6 +1,24 @@
 {
   "name": "@director/forms",
   "version": "0.0.0",
+  "description": "Reactive form model for Nuxt — controls, groups, validators and transformers. A Nuxt layer with no components.",
+  "keywords": [
+    "nuxt",
+    "nuxt-layer",
+    "vue",
+    "forms",
+    "validation",
+    "director"
+  ],
+  "homepage": "https://github.com/Thomasparsley/director/tree/main/packages/forms#readme",
+  "bugs": "https://github.com/Thomasparsley/director/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Thomasparsley/director.git",
+    "directory": "packages/forms"
+  },
+  "license": "MIT",
+  "author": "Tomáš Petržela <info@thomasparsley.cz>",
   "type": "module",
   "main": "./nuxt.config.ts",
   "files": [
@@ -9,10 +27,13 @@
     "!app/**/*.spec.ts"
   ],
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
   },
   "scripts": {
-    "postinstall": "nuxt prepare",
+    "dev:prepare": "nuxt prepare",
     "typecheck": "nuxt prepare && vue-tsc -b --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
