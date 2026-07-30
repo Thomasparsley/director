@@ -10,7 +10,7 @@ test("bootstrap settles an unauthenticated visit to anonymous", async ({ page })
   await page.goto("/identity");
 
   await expect(page.getByText("Session status:")).toContainText("anonymous");
-  await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sign in", exact: true })).toBeVisible();
 });
 
 test("signing in loads the user, survives a reload, and signs out again", async ({ page }) => {
@@ -18,7 +18,7 @@ test("signing in loads the user, survives a reload, and signs out again", async 
 
   await page.getByLabel("Username").fill("demo");
   await page.getByLabel("Password").fill("demo");
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
 
   await expect(page.getByText("Session status:")).toContainText("authenticated");
   await expect(page.getByText("Signed in as")).toContainText("Demo User");
@@ -31,7 +31,7 @@ test("signing in loads the user, survives a reload, and signs out again", async 
 
   await page.getByRole("button", { name: "Sign out" }).click();
   await expect(page.getByText("Session status:")).toContainText("anonymous");
-  await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sign in", exact: true })).toBeVisible();
 });
 
 test("wrong credentials surface an error and stay anonymous", async ({ page }) => {
@@ -39,7 +39,7 @@ test("wrong credentials surface an error and stay anonymous", async ({ page }) =
 
   await page.getByLabel("Username").fill("demo");
   await page.getByLabel("Password").fill("wrong");
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
 
   await expect(page.getByRole("alert")).toContainText("Login failed");
   await expect(page.getByText("Session status:")).toContainText("anonymous");

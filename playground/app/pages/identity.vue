@@ -2,9 +2,12 @@
 import { ref } from "vue";
 
 import { useIdentity } from "#layers/director-identity/app/composables/useIdentity";
+import { usePasskey } from "#layers/director-identity/app/composables/usePasskey";
 import { buildLoginCredentials } from "#layers/director-identity/app/core/credentials";
+import { PasskeyErrorResults } from "#layers/director-identity/app/errors/passkeyErrors";
 
 const identity = useIdentity();
+const passkey = usePasskey();
 
 const username = ref("");
 const password = ref("");
@@ -27,6 +30,71 @@ async function signIn() {
 
 async function signOut() {
   await identity.logout();
+}
+
+/**
+ * The passkey demo.
+ *
+ * `isAvailable()` is both halves of the question — configuration and browser capability —
+ * and it is read after mount rather than during render: WebAuthn does not exist on the
+ * server, so deciding on the server what to show would disagree with the client and trip a
+ * hydration mismatch.
+ */
+const passkeySupported = ref(false);
+const passkeyStatus = ref<string | null>(null);
+const passkeyBusy = ref(false);
+
+onMounted(() => {
+  passkeySupported.value = passkey.isAvailable();
+});
+
+async function enrolPasskey() {
+  passkeyStatus.value = null;
+  passkeyBusy.value = true;
+
+  try {
+    const result = await passkey.enrol();
+
+    passkeyStatus.value = result.success
+      ? "Passkey enrolled."
+      : describe(result.error);
+  }
+  finally {
+    passkeyBusy.value = false;
+  }
+}
+
+async function signInWithPasskey() {
+  passkeyStatus.value = null;
+  passkeyBusy.value = true;
+
+  try {
+    const result = await passkey.authenticate();
+
+    // The assertion is where the layer stops: turning it into a session is this app's own
+    // login flow, and the playground has a mock backend rather than one that mints tokens.
+    passkeyStatus.value = result.success
+      ? `Assertion signed (challenge ${result.value.challengeId}).`
+      : describe(result.error);
+  }
+  finally {
+    passkeyBusy.value = false;
+  }
+}
+
+function describe(error: PasskeyErrorResults): string {
+  switch (error) {
+    case PasskeyErrorResults.Cancelled:
+      // Not a failure: someone closed the prompt. Saying "cancelled" rather than "failed"
+      // is the whole reason this value exists.
+      return "Cancelled.";
+    case PasskeyErrorResults.Unsupported:
+      return "This browser cannot do WebAuthn.";
+    case PasskeyErrorResults.NotConfigured:
+      return "No passkey API configured.";
+    default:
+      return `Passkey error: ${error}`;
+  }
 }
 </script>
 
@@ -52,15 +120,32 @@ async function signOut() {
         ({{ identity.user.value?.email }})
       </p>
 
-      <div>
+      <div class=":uno: flex gap-2">
         <DButton @click="signOut">
           Sign out
+        </DButton>
+
+        <DButton
+          v-if="passkeySupported"
+          data-testid="passkey-enrol"
+          :disabled="passkeyBusy"
+          @click="enrolPasskey"
+        >
+          Enrol a passkey
         </DButton>
       </div>
     </template>
 
+    <div
+      v-if="passkeyStatus"
+      data-testid="passkey-status"
+      class=":uno: text-sm vtext-2"
+    >
+      {{ passkeyStatus }}
+    </div>
+
     <form
-      v-else
+      v-if="!identity.isAuthorized.value"
       class=":uno: flex flex-col gap-3 max-w-xs"
       @submit.prevent="signIn"
     >
@@ -84,6 +169,19 @@ async function signOut() {
           class=":uno: border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-transparent vtext-1"
         >
       </label>
+
+      <div
+        v-if="passkeySupported"
+        class=":uno: text-sm vtext-2"
+      >
+        <DButton
+          data-testid="passkey-signin"
+          :disabled="passkeyBusy"
+          @click="signInWithPasskey"
+        >
+          Sign in with a passkey
+        </DButton>
+      </div>
 
       <div>
         <DButton

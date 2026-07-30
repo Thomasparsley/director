@@ -46,11 +46,15 @@ export async function createPasskey(
   }
 
   try {
+    // The double cast is the point of this file rather than a smell: `app/` describes these
+    // payloads as opaque records precisely so it never has to name a type from this package,
+    // and here is the one place where the opaque thing becomes the library's own type. The
+    // bytes are unchanged in both directions.
     const response = await startRegistration({
-      optionsJSON: options as Parameters<typeof startRegistration>[0]["optionsJSON"],
+      optionsJSON: options as unknown as Parameters<typeof startRegistration>[0]["optionsJSON"],
     });
 
-    return { success: true, value: response as PasskeyRegistrationResponse };
+    return { success: true, value: response as unknown as PasskeyRegistrationResponse };
   }
   catch (error) {
     return { success: false, error: classify(error) };
@@ -67,10 +71,10 @@ export async function getPasskeyAssertion(
 
   try {
     const response = await startAuthentication({
-      optionsJSON: options as Parameters<typeof startAuthentication>[0]["optionsJSON"],
+      optionsJSON: options as unknown as Parameters<typeof startAuthentication>[0]["optionsJSON"],
     });
 
-    return { success: true, value: response as PasskeyAssertionResponse };
+    return { success: true, value: response as unknown as PasskeyAssertionResponse };
   }
   catch (error) {
     return { success: false, error: classify(error) };
