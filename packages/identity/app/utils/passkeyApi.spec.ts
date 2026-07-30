@@ -40,12 +40,25 @@ describe("makePasskeyApiClient", () => {
   });
 
   /**
-   * The options are the server's library's output and the browser's library's input. Nothing
-   * here reads a field, and re-encoding one is the likeliest way to break the ceremony — so
-   * the test that matters is that they arrive untouched.
+   * The route answers 200 with no body — the credential is stored and there is nothing to say
+   * about it. Insisting on JSON here reported a successful enrolment as a failure, which the
+   * admin's E2E caught and this now pins.
+   */
+  it("treats an empty 200 from register-complete as success", async () => {
+    const { api } = makeClient(new Response(null, { status: 200 }));
+
+    const result = await api.sendRegisterCompleteRequest("chal-1", { id: "credential-1" });
+
+    expect(result.success).toBe(true);
+  });
+
+  /**
+   * The options are the server library's output and the browser library's input. Nothing here
+   * reads a field, and re-encoding one is the likeliest way to break the ceremony — so the test
+   * that matters is that they arrive untouched.
    */
   it("passes the signed attestation through without reshaping it", async () => {
-    const { api, fetcher } = makeClient(jsonResponse({}, 200));
+    const { api, fetcher } = makeClient(new Response(null, { status: 200 }));
     const attestation = { id: "credential-1", response: { attestationObject: "b64url" } };
 
     await api.sendRegisterCompleteRequest("chal-1", attestation);

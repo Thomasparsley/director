@@ -46,9 +46,16 @@ export function makePasskeyApiClient(baseUrl: string, deps?: PasskeyApiClientDep
   const urls = makePasskeyEndpointUrls(baseUrl);
   const fetcher = deps?.fetcher ?? executeRequest;
 
+  /**
+   * Sends, and classifies the answer. `parse` is what separates the two shapes of success here:
+   * a route that returns a challenge has a body to read, and one that only says "done" does not.
+   * Insisting on JSON from the second turned a 200 into a refusal — an enrolment that had already
+   * been stored server-side reported as failed, which is the worst possible way to be wrong.
+   */
   async function post<T>(
     url: string,
     body: unknown,
+    parse: boolean,
   ): Promise<Result<T, PasskeyErrorResults>> {
     let response: Response;
 
@@ -71,6 +78,10 @@ export function makePasskeyApiClient(baseUrl: string, deps?: PasskeyApiClientDep
       return { success: false, error: PasskeyErrorResults.Rejected };
     }
 
+    if (!parse) {
+      return { success: true, value: undefined as T };
+    }
+
     const parsed = await parseJsonResponse<T>(response);
 
     return parsed === null
@@ -80,20 +91,14 @@ export function makePasskeyApiClient(baseUrl: string, deps?: PasskeyApiClientDep
 
   return {
     sendRegisterOptionsRequest: () =>
-      post<PasskeyChallenge<PasskeyRegistrationOptions>>(urls.registerOptions, {}),
+      post<PasskeyChallenge<PasskeyRegistrationOptions>>(urls.registerOptions, {}, true),
 
-    sendRegisterCompleteRequest: async (challengeId, response: PasskeyRegistrationResponse) => {
-      const result = await post<unknown>(urls.registerComplete, {
-        challengeId,
-        attestationResponse: response,
-      });
-
-      return result.success
-        ? { success: true, value: undefined }
-        : result;
-    },
+    // No body on the way back: the server has stored the credential and has nothing to say
+    // about it, so a 200 is the whole answer.
+    sendRegisterCompleteRequest: (challengeId, response: PasskeyRegistrationResponse) =>
+      post<void>(urls.registerComplete, { challengeId, attestationResponse: response }, false),
 
     sendLoginOptionsRequest: (username?: string) =>
-      post<PasskeyChallenge<PasskeyAssertionOptions>>(urls.loginOptions, { username }),
+      post<PasskeyChallenge<PasskeyAssertionOptions>>(urls.loginOptions, { username }, true),
   };
 }
