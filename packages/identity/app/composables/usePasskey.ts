@@ -3,6 +3,9 @@ import type { Result } from "#layers/director-common/app/types/result";
 import { PasskeyErrorResults } from "../errors/passkeyErrors";
 import type { PasskeyAssertionResponse } from "../types/passkeyApi";
 
+import { useSessionStore } from "../session/store";
+
+import { useIdentityAuthentication } from "./useIdentityAuthentication";
 import { useIdentityRuntime } from "./useIdentityRuntime";
 
 /**
@@ -20,6 +23,8 @@ import { useIdentityRuntime } from "./useIdentityRuntime";
 export function usePasskey() {
   const runtime = useIdentityRuntime();
   const logger = runtime.logger("Identity:Passkey");
+  const auth = useIdentityAuthentication();
+  const { applyExpiry } = useSessionStore();
 
   /**
    * Whether offering a passkey makes sense at all.
@@ -86,7 +91,33 @@ export function usePasskey() {
     };
   }
 
-  return { isAvailable, enrol, authenticate };
+  /**
+   * Takes up a session the application opened for itself.
+   *
+   * The counterpart to `authenticate`, and the reason that one can stop at a signature: the app
+   * posts the assertion to its own endpoint, the server sets the cookies, and then the layer has
+   * to be told — otherwise its session state still says anonymous, the route guard bounces the
+   * very page the login just earned, and every request after it is made by a client that does not
+   * know it is signed in.
+   *
+   * The same call serves any login the app completes itself: SSO, a magic link, anything that
+   * ends in Director's cookies being set.
+   *
+   * @param refreshAfter The access token's expiry, as the login response reports it.
+   */
+  async function adoptSession(refreshAfter: string): Promise<boolean> {
+    applyExpiry(refreshAfter);
+
+    const result = await auth.authenticate();
+
+    if (!result.success) {
+      logger.warn("A session was opened but the user could not be fetched", result.error);
+    }
+
+    return result.success;
+  }
+
+  return { isAvailable, enrol, authenticate, adoptSession };
 }
 
 /** What the app posts to its own login endpoint to turn a signature into a session. */
