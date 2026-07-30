@@ -1,6 +1,7 @@
 import type { IdentityTimingConfig } from "../config";
 import type { IdentityLogger } from "../utils/logger";
 import type { IdentityApi, IdentityChallengeApi } from "./identityApi";
+import type { IdentityPasskeyApi, PasskeyCeremony } from "./passkeyApi";
 import type { IdentityPermission } from "./permissions";
 import type { IdentityUser } from "./user";
 
@@ -49,6 +50,18 @@ export interface IdentityAppConfig {
 
   /** Builds the optional {@link IdentityChallengeApi} for MFA / step-up flows. */
   challengeApi?: (context: IdentityApiFactoryContext) => IdentityChallengeApi
+
+  /** Builds the optional passkey API. An app that never enables passkeys omits it. */
+  passkeyApi?: (context: IdentityApiFactoryContext) => IdentityPasskeyApi
+
+  /**
+   * Supplies the browser half of the passkey ceremony.
+   *
+   * The app builds this from `#layers/director-identity/transports/passkey`, rather than the
+   * layer importing it: `<layer>/app/**` joins the consuming app's TypeScript program, so an
+   * import in here would put `@simplewebauthn/browser` in front of every consumer.
+   */
+  passkeyCeremony?: () => PasskeyCeremony
 
   /** Timing overrides, merged over `defaultIdentityTiming`. */
   timing?: Partial<IdentityTimingConfig>

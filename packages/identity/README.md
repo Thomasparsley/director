@@ -242,6 +242,61 @@ Until something registers, idle never blocks renewal and an expired session simp
 logs out locally. (`useIdentityKeepAlive` is the supported wiring; `identity._keepAlive`
 is the low-level seam underneath it, if you need to compose the controller yourself.)
 
+## Passkeys (optional)
+
+Two `app.config` keys, and neither is set by default — an app that never enables passkeys
+is unaffected by any of this.
+
+```ts
+// app/app.config.ts
+import { makePasskeyApiClient } from "#layers/director-identity/app/utils/passkeyApi";
+import { makePasskeyCeremony } from "#layers/director-identity/transports/passkey";
+
+export default defineAppConfig({
+  identity: {
+    api: () => ({ /* … */ }),
+    passkeyApi: () => makePasskeyApiClient(useRuntimeConfig().public.identityApi),
+    passkeyCeremony: () => makePasskeyCeremony(),
+  } satisfies IdentityAppConfig,
+});
+```
+
+`makePasskeyCeremony` is imported by **your app**, not by the layer, and that is not a
+style choice. Nuxt puts `<layer>/app/**` into the consuming app's TypeScript program, so a
+file in there importing `@simplewebauthn/browser` would make every consumer of this layer
+install it just to typecheck — including apps that will never register a passkey. It lives
+in `transports/`, outside `app/`, for the same reason `@director/gql` puts
+`makeGraphqlWsForwarder` there. That is what makes the optional peer dependency honest.
+
+```bash
+pnpm add @simplewebauthn/browser
+```
+
+Then:
+
+```ts
+const { isAvailable, enrol, authenticate } = usePasskey();
+```
+
+- `isAvailable()` — configuration *and* browser capability. Safe to call before either
+  exists, so a screen can ask without a try/catch.
+- `enrol()` — the two round trips of registration, for a user who is already signed in.
+- `authenticate(username?)` — the assertion half of a sign-in. Omit the username for a
+  discoverable login: no username box, the authenticator picks, and the assertion says who
+  signed.
+
+**`authenticate` does not finish the login.** It returns the signed assertion and its
+challenge id; turning those into a session is your app's own login flow — the same one the
+password path goes through, including whatever it decides about MFA. The server package
+leaves that route to the application for the same reason: a second endpoint issuing
+sessions its own way is how two subtly different ways in appear.
+
+Every failure is a `PasskeyErrorResults` value, and one of them is not a failure:
+`Cancelled` means the person dismissed the browser's prompt. Reporting that as an error is
+the first thing every WebAuthn front end gets wrong.
+
+The server half is `Director.Identity.WebAuthn`, whose three routes this client calls.
+
 ## Testing
 
 `pnpm test` runs the layer's Vitest suite: the pure factories are tested with plain

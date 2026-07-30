@@ -25,8 +25,10 @@
   "main": "./nuxt.config.ts",
   "files": [
     "app",
+    "transports",
     "nuxt.config.ts",
-    "!app/**/*.spec.ts"
+    "!app/**/*.spec.ts",
+    "!transports/**/*.spec.ts"
   ],
   "publishConfig": {
     "access": "public"
@@ -45,10 +47,12 @@
     "@vueuse/core": "14.3.0"
   },
   "peerDependencies": {
+    "@simplewebauthn/browser": "^13",
     "nuxt": "^4",
     "vue": "^3.5"
   },
   "devDependencies": {
+    "@simplewebauthn/browser": "^13.3.0",
     "@types/node": "^22",
     "@vue/test-utils": "^2.4.11",
     "happy-dom": "^20.10.6",
@@ -57,5 +61,10 @@
     "vitest": "^4.1.9",
     "vue": "3.5.35",
     "vue-tsc": "3.3.3"
+  },
+  "peerDependenciesMeta": {
+    "@simplewebauthn/browser": {
+      "optional": true
+    }
   }
 }

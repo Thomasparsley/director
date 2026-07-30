@@ -18,6 +18,8 @@ export default defineConfig({
 
   test: {
     environment: "happy-dom",
-    include: ["app/**/*.spec.ts"],
+    // `transports/` too, since the passkey ceremony lives out there — see
+    // transports/passkey.ts for why it cannot live under app/.
+    include: ["app/**/*.spec.ts", "transports/**/*.spec.ts"],
   },
 });

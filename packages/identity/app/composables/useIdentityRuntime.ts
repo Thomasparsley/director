@@ -4,6 +4,7 @@ import { defaultIdentityCookieNames, defaultIdentityTiming } from "../config";
 import type { IdentityCookieNames, IdentityTimingConfig } from "../config";
 import type { IdentityAppConfig, IdentityPermissionsAdapter } from "../types/appConfig";
 import type { IdentityApi, IdentityChallengeApi } from "../types/identityApi";
+import type { IdentityPasskeyApi, PasskeyCeremony } from "../types/passkeyApi";
 import { noopIdentityLogger } from "../utils/logger";
 import type { IdentityLogger } from "../utils/logger";
 
@@ -20,6 +21,12 @@ export interface IdentityRuntime {
   readonly hasChallengeApi: boolean
   /** The app's challenge API, built lazily on first use. Throws when unconfigured. */
   readonly challengeApi: IdentityChallengeApi
+  /** Both halves of passkey support have to be configured for any of it to work. */
+  readonly hasPasskeys: boolean
+  /** The app's passkey API, built lazily on first use. Throws when unconfigured. */
+  readonly passkeyApi: IdentityPasskeyApi
+  /** The browser ceremony the app supplied. Throws when unconfigured. */
+  readonly passkeyCeremony: PasskeyCeremony
 }
 
 // Memoised on the (per-request) Nuxt app: the config never changes within an app, and
@@ -43,6 +50,8 @@ export function useIdentityRuntime(): IdentityRuntime {
 
   let api: IdentityApi | undefined;
   let challengeApi: IdentityChallengeApi | undefined;
+  let passkeyApi: IdentityPasskeyApi | undefined;
+  let passkeyCeremony: PasskeyCeremony | undefined;
 
   const runtime: IdentityRuntime = {
     timing: { ...defaultIdentityTiming, ...input?.timing },
@@ -78,6 +87,37 @@ export function useIdentityRuntime(): IdentityRuntime {
       }
       challengeApi ??= factory({ logger: logger("Identity:ChallengeApi") });
       return challengeApi;
+    },
+
+    // Both keys, not either: the API without the ceremony can ask the server for options
+    // and do nothing with them, and the ceremony without the API has nowhere to send what
+    // it signs. Reporting support on half a configuration would fail later and less clearly.
+    get hasPasskeys() {
+      return input?.passkeyApi !== undefined && input?.passkeyCeremony !== undefined;
+    },
+    get passkeyApi() {
+      const factory = input?.passkeyApi;
+      if (!factory) {
+        throw new Error(
+          "[identity] No passkey API configured. Set `identity.passkeyApi` in app.config "
+          + "to use the passkey flows.",
+        );
+      }
+      passkeyApi ??= factory({ logger: logger("Identity:PasskeyApi") });
+      return passkeyApi;
+    },
+    get passkeyCeremony() {
+      const factory = input?.passkeyCeremony;
+      if (!factory) {
+        throw new Error(
+          "[identity] No passkey ceremony configured. Set `identity.passkeyCeremony` in "
+          + "app.config, building it from "
+          + "`#layers/director-identity/transports/passkey` — the layer cannot import that "
+          + "itself without putting @simplewebauthn/browser in front of every consumer.",
+        );
+      }
+      passkeyCeremony ??= factory();
+      return passkeyCeremony;
     },
   };
 
