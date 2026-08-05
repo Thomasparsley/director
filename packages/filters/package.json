@@ -1,6 +1,6 @@
 {
   "name": "@directorkit/filters",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "URL-persisted page filter state for Nuxt, built on @directorkit/forms. A Nuxt layer with no components.",
   "keywords": [
     "nuxt",

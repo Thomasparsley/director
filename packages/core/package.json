@@ -1,6 +1,6 @@
 {
   "name": "@directorkit/core",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Administration building blocks for Nuxt — app shell, navigation and CRUD scaffolds built on @directorkit/ui.",
   "keywords": [
     "nuxt",

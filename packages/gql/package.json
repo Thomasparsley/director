@@ -1,7 +1,7 @@
 {
   "name": "@directorkit/gql",
-  "version": "0.0.0",
-  "description": "A configured urql client for Nuxt with typed query/mutation/subscription composables \u2014 SSR payload hydration, abortable queries, persisted documents. No components.",
+  "version": "0.1.0",
+  "description": "A configured urql client for Nuxt with typed query/mutation/subscription composables — SSR payload hydration, abortable queries, persisted documents. No components.",
   "keywords": [
     "nuxt",
     "nuxt-layer",
@@ -19,7 +19,7 @@
     "directory": "packages/gql"
   },
   "license": "MIT",
-  "author": "Tom\u00e1\u0161 Petr\u017eela <info@thomasparsley.cz>",
+  "author": "Tomáš Petržela <info@thomasparsley.cz>",
   "type": "module",
   "main": "./nuxt.config.ts",
   "files": [

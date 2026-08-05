@@ -1,6 +1,6 @@
 {
   "name": "@directorkit/dialogs",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Open any component as a modal or sheet from anywhere — dialog state for Nuxt, with no v-if and no wrapper element.",
   "keywords": [
     "nuxt",

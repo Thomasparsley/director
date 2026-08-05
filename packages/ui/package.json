@@ -1,6 +1,6 @@
 {
   "name": "@directorkit/ui",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Component kit and design tokens for Nuxt — auto-registered <D*> components on reka-ui, with the palette living in the UnoCSS theme.",
   "keywords": [
     "nuxt",
