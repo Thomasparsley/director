@@ -1,4 +1,4 @@
-# @director/gql
+# @directorkit/gql
 
 GraphQL for Nuxt apps, as a logic-only Nuxt layer: **one urql client per app**, built
 from your `app.config`, with typed query / mutation / subscription composables on top of
@@ -14,7 +14,7 @@ own. It ships **no components** (see ADR-0021).
 ## Install
 
 ```bash
-pnpm add @director/gql @urql/core graphql gql.tada
+pnpm add @directorkit/gql @urql/core graphql gql.tada
 ```
 
 `@urql/core`, `graphql` and `gql.tada` are peer dependencies: your app imports them too
@@ -26,7 +26,7 @@ Then add the layer to your `extends`:
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  extends: ["@director/gql"],
+  extends: ["@directorkit/gql"],
 });
 ```
 

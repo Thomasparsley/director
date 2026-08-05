@@ -8,12 +8,12 @@
   },
   "scripts": {
     "postinstall": "pnpm -r --if-present run dev:prepare",
-    "dev": "pnpm --filter @director/playground dev",
+    "dev": "pnpm --filter @directorkit/playground dev",
     "lint": "pnpm -r --if-present lint",
     "typecheck": "pnpm -r --if-present typecheck",
     "test": "pnpm -r --if-present test",
     "test:integration": "pnpm -r --if-present test:integration",
-    "test:e2e": "pnpm --filter @director/playground test:e2e",
+    "test:e2e": "pnpm --filter @directorkit/playground test:e2e",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "changeset publish --no-git-tag"

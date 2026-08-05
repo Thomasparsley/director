@@ -4,7 +4,7 @@ Status: Accepted
 
 ## Context
 
-`@director/*` is a reusable UI / admin product line meant to be consumed by real
+`@directorkit/*` is a reusable UI / admin product line meant to be consumed by real
 apps (firesport first). The conventional shape for that is a component library: a
 build step (Vite in library mode, or unbuild), a `dist/`, an `exports` map, and
 consumers importing components by name and registering them.
@@ -14,12 +14,12 @@ Nuxt offers a second shape — the **layer** — where a package *is* a
 
 ## Decision
 
-Every `@director/*` package is a Nuxt layer. The entry point is the layer config
+Every `@directorkit/*` package is a Nuxt layer. The entry point is the layer config
 (`"main": "./nuxt.config.ts"`, e.g. `packages/ui/package.json:5`), the package
 ships **raw source** with no build step, and consumers write:
 
 ```ts
-extends: ["@director/core", "@director/forms"]
+extends: ["@directorkit/core", "@directorkit/forms"]
 ```
 
 Concretely:
@@ -33,7 +33,7 @@ Concretely:
   `fileURLToPath(new URL("./app/components", import.meta.url))` — it must point
   inside the *published package*, not the app that extends it.
 - **Modules ride along with the layer.** `@unocss/nuxt`, `@nuxtjs/color-mode`
-  and `nuxt-lucide-icons` are declared inside `@director/ui`
+  and `nuxt-lucide-icons` are declared inside `@directorkit/ui`
   (`packages/ui/nuxt.config.ts:15-19`), so an app that extends it declares none of
   them itself.
 - **Cross-layer imports use `#layers/<$meta.name>`**, the alias Nuxt derives from
@@ -67,7 +67,7 @@ Concretely:
 
 - **A built component library (Vite library mode + `dist/`).** The portable
   choice: consumable outside Nuxt, and no toolchain coupling to the consumer.
-  Rejected because the product *is* Nuxt-shaped — `@director/core` assumes a
+  Rejected because the product *is* Nuxt-shaped — `@directorkit/core` assumes a
   routed Nuxt app (ADR-0002), and half the value is the modules, auto-imports and
   color-mode wiring arriving preconfigured. A library would hand all of that back
   to every app to redo.

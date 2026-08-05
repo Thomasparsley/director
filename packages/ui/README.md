@@ -1,4 +1,4 @@
-# @director/ui
+# @directorkit/ui
 
 The component kit and the design tokens: auto-registered `<D*>` components built on
 [reka-ui](https://reka-ui.com) for behaviour and [UnoCSS](https://unocss.dev) for
@@ -7,22 +7,22 @@ styling, plus `@nuxtjs/color-mode` and `nuxt-lucide-icons` riding along with the
 ## Install
 
 ```bash
-npm install @director/ui
+npm install @directorkit/ui
 ```
 
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  extends: ["@director/ui"],
+  extends: ["@directorkit/ui"],
 });
 ```
 
 ```ts
 // uno.config.ts — REQUIRED, see below
-export { default } from "@director/ui/uno.config";
+export { default } from "@directorkit/ui/uno.config";
 ```
 
-`@director/ui` is a **Nuxt layer**, not a built library: it ships raw `.vue` source
+`@directorkit/ui` is a **Nuxt layer**, not a built library: it ships raw `.vue` source
 and the consuming app's Vite compiles it. `nuxt` and `vue` are peer dependencies.
 
 ### Why the `uno.config.ts` re-export is mandatory
@@ -59,7 +59,7 @@ overridable on its own. Icons come from `nuxt-lucide-icons` with the `Icon` pref
 (`<IconCheck />`).
 
 To bind these inputs to a form model instead of a plain `v-model`, add
-[`@director/form-ui`](https://www.npmjs.com/package/@director/form-ui).
+[`@directorkit/form-ui`](https://www.npmjs.com/package/@directorkit/form-ui).
 
 ## Documentation
 

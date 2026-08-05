@@ -11,7 +11,7 @@ const emphasis = ref<string[]>(["bold"]);
 <template>
   <div class=":uno: flex flex-col gap-8">
     <p class=":uno: text-gray-600 dark:text-gray-300">
-      Layer chain working: <code>@director/core → @director/ui → @director/common</code>
+      Layer chain working: <code>@directorkit/core → @directorkit/ui → @directorkit/common</code>
     </p>
 
     <section class=":uno: flex flex-col gap-3">

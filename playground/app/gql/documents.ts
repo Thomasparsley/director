@@ -6,7 +6,7 @@ import type { TadaDocumentNode } from "gql.tada";
  *
  * A real consumer does NOT do this: it runs gql.tada's codegen against its schema and
  * gets `graphql` from `initGraphQLTada`, which infers result and variable types from the
- * introspection. `@director/gql` accepts any `TadaDocumentNode`, so the playground keeps
+ * introspection. `@directorkit/gql` accepts any `TadaDocumentNode`, so the playground keeps
  * its toy schema (`server/api/graphql.post.ts`) small enough to type by hand rather than
  * adding a codegen step and a generated `graphql-env.d.ts` to this repo.
  *

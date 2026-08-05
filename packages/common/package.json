@@ -1,7 +1,7 @@
 {
-  "name": "@director/common",
+  "name": "@directorkit/common",
   "version": "0.0.0",
-  "description": "Shared logic for the @director layer chain — utils, composables and types. A Nuxt layer with no components.",
+  "description": "Shared logic for the @directorkit layer chain — utils, composables and types. A Nuxt layer with no components.",
   "keywords": [
     "nuxt",
     "nuxt-layer",

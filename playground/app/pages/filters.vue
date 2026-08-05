@@ -62,7 +62,7 @@ const advanced = useFilters(
 <template>
   <div class=":uno: flex flex-col gap-8">
     <p class=":uno: text-gray-600 dark:text-gray-300">
-      <code>@director/filters</code> demo — <code>useFilters</code> mirroring a filter form to
+      <code>@directorkit/filters</code> demo — <code>useFilters</code> mirroring a filter form to
       the URL query, per-field and as one serialized object.
     </p>
 

@@ -74,7 +74,7 @@ boolean prop to false, which must not shadow the field's error state."*
   deliberate duplication over a shared factory: each one is ~30 lines, the merge
   rules differ per component, and `toggleGroup.context.ts:5-8` cites formField as
   precedent rather than importing from it.
-- Note this does **not** use `@director/common`'s `utils/injection.ts`
+- Note this does **not** use `@directorkit/common`'s `utils/injection.ts`
   (`hasInjection` / `tryProvide`). That helper exists and is unused by the
   component kit — the context files import `provide`/`inject` from `vue`
   directly.

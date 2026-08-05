@@ -41,7 +41,7 @@ export function useGqlQueryPromiseCache(): Map<string, Promise<unknown>> {
   if (!$gqlQueryPromiseCache) {
     throw new Error(
       "[gql] Query promise cache not found — the gql plugin did not run. Is the "
-      + "@director/gql layer in `extends`?",
+      + "@directorkit/gql layer in `extends`?",
     );
   }
   return $gqlQueryPromiseCache;

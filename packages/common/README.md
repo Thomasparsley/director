@@ -1,23 +1,23 @@
-# @director/common
+# @directorkit/common
 
-The base of the `@director/*` layer chain: shared utils, composables and types.
-No components, no modules, no opinions about UI — every other `@director` layer
+The base of the `@directorkit/*` layer chain: shared utils, composables and types.
+No components, no modules, no opinions about UI — every other `@directorkit` layer
 extends this one, and an app can extend it directly for the types alone.
 
 ## Install
 
 ```bash
-npm install @director/common
+npm install @directorkit/common
 ```
 
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  extends: ["@director/common"],
+  extends: ["@directorkit/common"],
 });
 ```
 
-`@director/common` is a **Nuxt layer**, not a built library: it ships raw source
+`@directorkit/common` is a **Nuxt layer**, not a built library: it ships raw source
 and the consuming app's Vite compiles it. `nuxt` and `vue` are peer dependencies.
 
 ## What is in it

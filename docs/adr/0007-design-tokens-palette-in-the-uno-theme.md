@@ -44,12 +44,12 @@ and our preflight selector already expect.
 
 **The app re-exports the config.** `@unocss/nuxt` resolves `uno.config.ts` from
 the *app root*, not from layers — a Nuxt layer cannot ship a Uno config
-transitively (ADR-0001). So `@director/ui` exposes it (`"./uno.config"` in the
+transitively (ADR-0001). So `@directorkit/ui` exposes it (`"./uno.config"` in the
 `exports` map) and every consumer writes four lines:
 
 ```ts
 // app uno.config.ts
-export { default } from "@director/ui/uno.config";
+export { default } from "@directorkit/ui/uno.config";
 ```
 
 **UnoCSS must scan `.ts`.** `uno.config.ts:59-70`: *"UnoCSS's default include list
@@ -68,7 +68,7 @@ unstyled."*
 - The re-export is a mandatory step for every consumer, and forgetting it
   produces an *unstyled app*, not an error. `playground/uno.config.ts` exists
   partly to rehearse it: *"This is the same pattern firesport will use when it
-  adopts @director/ui."*
+  adopts @directorkit/ui."*
 - The `content.pipeline.include` entry is not optional decoration — without it the
   published layer ships unstyled in a consumer's build. It is the second of the
   three taxes the ADR-0005 convention levies.

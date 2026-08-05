@@ -1,4 +1,4 @@
-# 0003 — pnpm workspace, Changesets, and the private @director scope
+# 0003 — pnpm workspace, Changesets, and the private @directorkit scope
 
 Status: Accepted
 
@@ -27,7 +27,7 @@ ignored (`.changeset/config.json`). Publishing is `changeset publish` from the
 root.
 
 **GitHub Packages as the registry**, scoped: `.npmrc:2` sets
-`@director:registry=https://npm.pkg.github.com`, and every publishable package
+`@directorkit:registry=https://npm.pkg.github.com`, and every publishable package
 restates it in `publishConfig.registry`. The `.npmrc` comment marks it as a
 default, not a commitment: *"adjust if you use another registry"*.
 
@@ -65,8 +65,8 @@ module' issues. Narrow later with public-hoist-pattern if desired."*
   whole graph.
 - **A single version for all packages (fixed/linked in Changesets).** Simpler to
   reason about, and tempting given how tightly the layers are coupled. Rejected
-  for now — `fixed: []` and `linked: []` — because a `@director/common` typo fix
-  should not bump `@director/core`. Revisit if the versions drift far enough
+  for now — `fixed: []` and `linked: []` — because a `@directorkit/common` typo fix
+  should not bump `@directorkit/core`. Revisit if the versions drift far enough
   apart that compatible combinations stop being obvious.
 </content>
 </invoke>

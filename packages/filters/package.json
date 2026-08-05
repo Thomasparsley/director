@@ -1,7 +1,7 @@
 {
-  "name": "@director/filters",
+  "name": "@directorkit/filters",
   "version": "0.0.0",
-  "description": "URL-persisted page filter state for Nuxt, built on @director/forms. A Nuxt layer with no components.",
+  "description": "URL-persisted page filter state for Nuxt, built on @directorkit/forms. A Nuxt layer with no components.",
   "keywords": [
     "nuxt",
     "nuxt-layer",
@@ -40,8 +40,8 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@director/common": "workspace:*",
-    "@director/forms": "workspace:*",
+    "@directorkit/common": "workspace:*",
+    "@directorkit/forms": "workspace:*",
     "@vueuse/core": "14.3.0"
   },
   "peerDependencies": {

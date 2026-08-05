@@ -41,7 +41,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Install Playwright browser
-        run: pnpm --filter @director/playground exec playwright install --with-deps chromium
+        run: pnpm --filter @directorkit/playground exec playwright install --with-deps chromium
       # The webServer block in playwright.config.ts runs `pnpm build` itself.
       - run: pnpm test:e2e
       - name: Upload Playwright report

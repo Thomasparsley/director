@@ -1,29 +1,29 @@
-# @director/form-ui
+# @directorkit/form-ui
 
-The bridge between [`@director/forms`](https://www.npmjs.com/package/@director/forms)
-and [`@director/ui`](https://www.npmjs.com/package/@director/ui): `<DForm*>`
+The bridge between [`@directorkit/forms`](https://www.npmjs.com/package/@directorkit/forms)
+and [`@directorkit/ui`](https://www.npmjs.com/package/@directorkit/ui): `<DForm*>`
 components that take a `FormControl` and wire value, error display and
 blur → transform/validate, so app code never repeats that plumbing.
 
 ## Install
 
 ```bash
-npm install @director/form-ui
+npm install @directorkit/form-ui
 ```
 
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  extends: ["@director/form-ui"],
+  extends: ["@directorkit/form-ui"],
 });
 ```
 
 ```ts
-// uno.config.ts — required, inherited from @director/ui
-export { default } from "@director/ui/uno.config";
+// uno.config.ts — required, inherited from @directorkit/ui
+export { default } from "@directorkit/ui/uno.config";
 ```
 
-Extending this layer pulls in both `@director/ui` and `@director/forms`.
+Extending this layer pulls in both `@directorkit/ui` and `@directorkit/forms`.
 It is a **Nuxt layer**, not a built library: it ships raw source and the consuming
 app's Vite compiles it. `nuxt` and `vue` are peer dependencies.
 

@@ -4,7 +4,7 @@ Status: Accepted
 
 ## Context
 
-`@director/forms` (`37c149f`) is a rewrite of firesport's forms layer, taken as an
+`@directorkit/forms` (`37c149f`) is a rewrite of firesport's forms layer, taken as an
 opportunity to settle the model rather than port it verbatim. The requirement is a
 form model with no components (ADR-0002) that can describe a whole admin payload —
 fixed-shape objects, repeated sections, dynamic dictionaries, optional
@@ -105,8 +105,8 @@ and why `PatchForm<T> = DeepPartial<InnerFormSetterType<T>>`.
   touched/pending/original, no `ArrayFormGroup` with a constructor, and no
   per-field error storage. They could still back `Validator<T>` at the leaves
   later; nothing here forecloses that.
-- **VeeValidate / FormKit.** Both bring components, which `@director/forms` may
-  not have (ADR-0002) — `@director/filters` is a non-UI consumer.
+- **VeeValidate / FormKit.** Both bring components, which `@directorkit/forms` may
+  not have (ADR-0002) — `@directorkit/filters` is a non-UI consumer.
 - **`reactive()` state on the group, controls as views.** The mirror image. Rejected:
   it puts the single copy of a value furthest from the thing that edits it, and
   `useMaybeRef`'s caller-owned-ref case becomes impossible.

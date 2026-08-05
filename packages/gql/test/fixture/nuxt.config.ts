@@ -1,5 +1,5 @@
 /**
- * The integration fixture: the smallest Nuxt app that extends `@director/gql` and serves
+ * The integration fixture: the smallest Nuxt app that extends `@directorkit/gql` and serves
  * it a real GraphQL server.
  *
  * Deliberately minimal — no UI layer, no UnoCSS, one page — because its whole job is to

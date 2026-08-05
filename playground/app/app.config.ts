@@ -21,7 +21,7 @@ export default defineAppConfig({
     passkeyCeremony: () => makePasskeyCeremony(),
   } satisfies IdentityAppConfig,
 
-  // @director/gql talks to the playground's own toy server (server/api/graphql.post.ts).
+  // @directorkit/gql talks to the playground's own toy server (server/api/graphql.post.ts).
   gql: {
     // SSR fetches over HTTP like any other client, so the server side needs an absolute
     // URL — and it has to be built from the incoming request, since the port is whatever

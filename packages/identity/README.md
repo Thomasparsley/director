@@ -1,4 +1,4 @@
-# @director/identity
+# @directorkit/identity
 
 Session/auth state for Nuxt apps, as a logic-only Nuxt layer: one owner of session
 state (status, user, token expiry) with pure, dependency-injected logic around it —
@@ -9,7 +9,7 @@ The layer never assumes a backend. Every app supplies its own transport through 
 **`IdentityApi` interface** in `app.config` — REST, GraphQL or an in-browser mock all
 plug in the same way. It ships **no components, middlewares or forms**: it holds
 state; painting login forms and dialogs is the consuming app's job (the same trade as
-`@director/dialogs`, see ADR-0017/ADR-0019).
+`@directorkit/dialogs`, see ADR-0017/ADR-0019).
 
 ## Install
 
@@ -18,7 +18,7 @@ Add the layer to the app's `extends` (and its package to the dependencies):
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  extends: ["@director/identity"],
+  extends: ["@directorkit/identity"],
 });
 ```
 
@@ -265,7 +265,7 @@ export default defineAppConfig({
 style choice. Nuxt puts `<layer>/app/**` into the consuming app's TypeScript program, so a
 file in there importing `@simplewebauthn/browser` would make every consumer of this layer
 install it just to typecheck — including apps that will never register a passkey. It lives
-in `transports/`, outside `app/`, for the same reason `@director/gql` puts
+in `transports/`, outside `app/`, for the same reason `@directorkit/gql` puts
 `makeGraphqlWsForwarder` there. That is what makes the optional peer dependency honest.
 
 ```bash

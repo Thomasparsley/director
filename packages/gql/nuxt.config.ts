@@ -1,4 +1,4 @@
-// @director/gql — the GraphQL layer: one urql client per app, built from `app.config`
+// @directorkit/gql — the GraphQL layer: one urql client per app, built from `app.config`
 // (`gql`), plus typed query / mutation / subscription composables on top of it. The app
 // owns its schema binding (`initGraphQLTada`) and its endpoint; the layer owns the client,
 // the SSR payload cache, the operation keys and the request lifecycle. Every server is
@@ -11,6 +11,6 @@ export default defineNuxtConfig({
   },
 
   extends: [
-    "@director/common",
+    "@directorkit/common",
   ],
 });

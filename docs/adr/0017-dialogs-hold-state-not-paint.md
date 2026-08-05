@@ -4,7 +4,7 @@ Status: Accepted
 
 ## Context
 
-`@director/dialogs` is the port of firesport's `client/layers/dialogs`. It exists so a
+`@directorkit/dialogs` is the port of firesport's `client/layers/dialogs`. It exists so a
 caller can hand a component to `useModalDialog` / `useSheetDialog` and get back
 `{ isOpen, openDialog, closeDialog, onCloseEvent }` — no `v-if`, no wrapper element,
 no dialog markup anywhere near the page that opens it:
@@ -22,7 +22,7 @@ component that paints it (`u/dialogManager.vue`) lives in `layers/ui`.
 
 ## Decision
 
-**`@director/dialogs` extends `@director/common` and nothing else** — a sibling of `ui`
+**`@directorkit/dialogs` extends `@directorkit/common` and nothing else** — a sibling of `ui`
 and `forms`, *"pure logic, no components"*. firesport's split was right and we keep it:
 the state half needs nothing but Vue, so nothing but Vue is what it depends on.
 
@@ -59,8 +59,8 @@ component, props and emits to paint it with. See the open question below.
 
 ## Consequences
 
-- The layer is reachable from no other layer — an app must list `@director/dialogs` in
-  its `extends` explicitly, exactly as it must for `@director/forms` (ADR-0002).
+- The layer is reachable from no other layer — an app must list `@directorkit/dialogs` in
+  its `extends` explicitly, exactly as it must for `@directorkit/forms` (ADR-0002).
 - **Nothing paints dialogs yet, so the layer is not usable end-to-end.** It is complete
   and tested as a state machine, and inert until a renderer exists.
 - `useDialogManager` reaches through `#app`, which does not exist under bare Vitest.
@@ -75,7 +75,7 @@ component, props and emits to paint it with. See the open question below.
 
 ## Open question — where the renderer goes
 
-The renderer needs both `dialogs` and a modal/sheet component, and `@director/ui` today
+The renderer needs both `dialogs` and a modal/sheet component, and `@directorkit/ui` today
 has neither the primitives (no `Dialog`, `Modal` or `Sheet` — reka-ui's `DialogRoot` is
 unused) nor a dependency on this layer. Two shapes, to be settled when the primitives
 are built:
@@ -104,7 +104,7 @@ lands.
 
 ## Alternatives considered
 
-- **Fold the dialog state into `@director/ui`.** One layer, no placement question. Rejected
+- **Fold the dialog state into `@directorkit/ui`.** One layer, no placement question. Rejected
   for the reason ADR-0002 rejected it for `forms`: opening a dialog is state, and state
   should not require a component kit. It would also make the layer untestable without
   UnoCSS and reka-ui in the graph.

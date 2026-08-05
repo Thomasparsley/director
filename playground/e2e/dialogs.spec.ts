@@ -1,6 +1,6 @@
 import { expect, test } from "./fixtures";
 
-// Against /dialogs: @director/dialogs holds state, not paint (ADR-0017). The playground's
+// Against /dialogs: @directorkit/dialogs holds state, not paint (ADR-0017). The playground's
 // DialogHost is the consumer's rendering shell; these tests drive the state contract through
 // it — open/close, the manager's stack, and a value resolving back to the opener. Focus
 // trapping/restoration is a paint concern this minimal host does not implement, so it is not

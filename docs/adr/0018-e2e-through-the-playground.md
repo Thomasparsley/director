@@ -44,9 +44,9 @@ records the load-bearing decisions.
   No `waitForTimeout`; assertions auto-retry.
 
 **Two layers were only demoed *because* E2E needed them to be** — closing debt
-ADR-0009 flagged. `playground/app/pages/filters.vue` gives `@director/filters` its
+ADR-0009 flagged. `playground/app/pages/filters.vue` gives `@directorkit/filters` its
 first demo (query-per-field + serialized-object storage over a filtered list).
-`@director/dialogs` was wired into the playground for the first time (extends + dep +
+`@directorkit/dialogs` was wired into the playground for the first time (extends + dep +
 demo page + nav entry), and — because the layer holds *state, not paint* (ADR-0017) —
 the demo had to supply `DialogHost`, the first real rehearsal of that consumer
 contract. A `SunMoon` theme toggle was added to `app.vue` so color mode is drivable.

@@ -5,11 +5,11 @@ Status: Accepted
 ## Context
 
 Every list page in an admin filters: a few controls, feeding a query, and the
-result has to survive a reload and be shareable as a link. `@director/filters`
+result has to survive a reload and be shareable as a link. `@directorkit/filters`
 (`49f88e3`) is the port of firesport's filters layer.
 
 A filter panel is a form — controls with values, validation, reset. Building a
-second state model for it would duplicate `@director/forms` and then diverge from
+second state model for it would duplicate `@directorkit/forms` and then diverge from
 it.
 
 ## Decision
@@ -52,7 +52,7 @@ asserts URL-safety concretely (`not.toMatch(/[/+=?&#]/)`).
 
 The **UTF-8 safety is not incidental**. Bare `btoa("ž")` throws
 `InvalidCharacterError` — btoa accepts only code points 0–255. So
-`@director/common`'s `utf8ToBase64` encodes to UTF-8 bytes with `TextEncoder`,
+`@directorkit/common`'s `utf8ToBase64` encodes to UTF-8 bytes with `TextEncoder`,
 presents those bytes to `btoa` as latin1 characters, and `base64ToUtf8` reverses it
 via `TextDecoder`. The consuming app is Czech: a filter containing "Plzeň" hits
 this on day one. `base64.spec.ts` pins it with Czech text, emoji with skin-tone

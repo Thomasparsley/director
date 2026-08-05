@@ -27,7 +27,7 @@ payload, silently, while every sibling serialized correctly.
 
 ## Decision
 
-**`null` is the empty value throughout `@director/forms`.** Declare controls as
+**`null` is the empty value throughout `@directorkit/forms`.** Declare controls as
 `T | null`, initialise with `null`, and let `undefined` exist only at the
 boundaries — never in the model.
 

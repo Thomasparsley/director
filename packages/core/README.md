@@ -1,29 +1,29 @@
-# @director/core
+# @directorkit/core
 
 Pre-assembled administration building blocks — the app shell and its navigation —
-built on [`@director/ui`](https://www.npmjs.com/package/@director/ui). Extending
+built on [`@directorkit/ui`](https://www.npmjs.com/package/@directorkit/ui). Extending
 this layer gives you the component kit as well; apps customize by overriding the
 layer, not by forking it.
 
 ## Install
 
 ```bash
-npm install @director/core
+npm install @directorkit/core
 ```
 
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  extends: ["@director/core"],
+  extends: ["@directorkit/core"],
 });
 ```
 
 ```ts
-// uno.config.ts — required, inherited from @director/ui
-export { default } from "@director/ui/uno.config";
+// uno.config.ts — required, inherited from @directorkit/ui
+export { default } from "@directorkit/ui/uno.config";
 ```
 
-`@director/core` is a **Nuxt layer**, not a built library: it ships raw source and
+`@directorkit/core` is a **Nuxt layer**, not a built library: it ships raw source and
 the consuming app's Vite compiles it. `nuxt`, `vue` and `vue-router` are peer
 dependencies.
 

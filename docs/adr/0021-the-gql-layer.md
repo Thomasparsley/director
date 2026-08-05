@@ -30,7 +30,7 @@ coupling completely — no adapter type, no generic parameter on the layer.
 
 ## Decision
 
-**`@director/gql` is a logic-only layer extending `@director/common`. It owns one urql
+**`@directorkit/gql` is a logic-only layer extending `@directorkit/common`. It owns one urql
 client per Nuxt app, built from a `gql` key in `app.config`; the app owns its schema
 binding and its endpoint.**
 
@@ -48,7 +48,7 @@ binding and its endpoint.**
   persisted operations need build tooling the layer does not ship — an unconfigured app
   must get the format that works against any server.
 - **The auth exchange does not port.** Auth policy is identity's business, and baking it
-  in would make `@director/gql` depend on `@director/identity`. Apps compose them through
+  in would make `@directorkit/gql` depend on `@directorkit/identity`. Apps compose them through
   `gql.exchanges`, which receives the layer's defaults in order and returns the list to
   use. The defaults deliberately contain **no `cacheExchange`**: `useQuery` owns its own
   state and the layer has its own SSR payload cache, so a second document cache in front

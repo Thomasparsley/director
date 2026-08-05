@@ -50,7 +50,7 @@ function fillExample() {
 <template>
   <div class=":uno: flex flex-col gap-8">
     <p class=":uno: text-gray-600 dark:text-gray-300">
-      <code>@director/forms</code> demo — <code>useFormGroup</code> + <code>useFormControl</code>
+      <code>@directorkit/forms</code> demo — <code>useFormGroup</code> + <code>useFormControl</code>
       with validators, transformers and <code>useFormSubmit</code>.
     </p>
 

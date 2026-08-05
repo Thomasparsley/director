@@ -1,4 +1,4 @@
-# 0020 — Publish the @director scope publicly to npm
+# 0020 — Publish the @directorkit scope publicly to npm
 
 Status: Accepted
 
@@ -21,9 +21,17 @@ source is public on GitHub anyway.
 
 ## Decision
 
-**The `@director/*` packages publish publicly to registry.npmjs.org.**
+**The `@directorkit/*` packages publish publicly to registry.npmjs.org.**
 
-- `.npmrc` no longer sets `@director:registry` — the default registry is npm, and
+- **The scope is `@directorkit`, not `@director`.** npm scope names are first-come,
+  and the `director` org is already registered by someone else — an org that has
+  published nothing, but the name is theirs regardless. Since nothing here had ever
+  been published, the rename cost only a string sweep. The layer *names* are
+  untouched: every layer sets `$meta.name` explicitly (`director-common`,
+  `director-gql`, …), so the `#layers/director-*` aliases consumers import through
+  are decoupled from the package name. `@directorkit/gql` and `#layers/director-gql`
+  therefore name the same layer, and only the first of the two was ever negotiable.
+- `.npmrc` no longer sets `@directorkit:registry` — the default registry is npm, and
   the file now carries only `shamefully-hoist`.
 - Each package declares `publishConfig.access: "public"`; the GitHub-Packages
   `publishConfig.registry` line is gone. `.changeset/config.json` moves to
@@ -70,7 +78,7 @@ source is public on GitHub anyway.
   decides what actually ships by diffing manifests against the registry. If that
   ambiguity ever costs more than it saves, the fix is Changesets `fixed` (lockstep
   versioning), which would make the tag exact — and would reverse the "a
-  `@director/common` typo fix should not bump `@director/core`" call in ADR-0003.
+  `@directorkit/common` typo fix should not bump `@directorkit/core`" call in ADR-0003.
   Not taken now.
 - MIT means downstream forks are permitted and the warranty disclaimer is the whole
   of the liability position.

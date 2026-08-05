@@ -50,8 +50,8 @@ const { isDisabled, isLoading, executeSubmit } = useFormSubmit(profileForm, asyn
 <template>
   <div class=":uno: flex flex-col gap-8">
     <p class=":uno: text-gray-600 dark:text-gray-300">
-      <code>@director/form-ui</code> demo — <code>DForm*</code> components binding
-      <code>@director/forms</code> controls to the <code>@director/ui</code> inputs.
+      <code>@directorkit/form-ui</code> demo — <code>DForm*</code> components binding
+      <code>@directorkit/forms</code> controls to the <code>@directorkit/ui</code> inputs.
     </p>
 
     <section class=":uno: grid max-w-3xl grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">

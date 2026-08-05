@@ -1,6 +1,6 @@
-# `@director/gql` — port status and adoption guide
+# `@directorkit/gql` — port status and adoption guide
 
-**The layer is built.** `packages/gql` extends `@director/common`, carries 156 unit specs,
+**The layer is built.** `packages/gql` extends `@directorkit/common`, carries 156 unit specs,
 32 integration specs against a real Nuxt server (HTTP + WebSocket), and a playground demo
 with 5 E2E specs, and typechecks with the rest of the graph. The
 decisions behind it — and the upstream defects fixed on the way — are recorded in
@@ -32,10 +32,10 @@ Two design points differ from the original plan, both for the better:
 
 ## Adopting it in an app that has its own GraphQL layer
 
-1. **Install.** `pnpm add @director/gql @urql/core graphql gql.tada` (plus `graphql-ws`
+1. **Install.** `pnpm add @directorkit/gql @urql/core graphql gql.tada` (plus `graphql-ws`
    only if the app uses subscriptions). The three besides the layer are peer dependencies
    — the app imports them too, and two copies mean two incompatible sets of types.
-2. **Extend.** Replace the app's own layer with `"@director/gql"` in `nuxt.config.ts`.
+2. **Extend.** Replace the app's own layer with `"@directorkit/gql"` in `nuxt.config.ts`.
 3. **Configure.** Add the `gql` key to `app.config.ts`. An app coming from a
    persisted-documents, cookie-session backend looks like this:
 
@@ -87,5 +87,5 @@ Two design points differ from the original plan, both for the better:
   file, `graphql.config`, generated `graphql-env.d.ts` — is not demonstrated end to end
   here.
 - **`infer.ts` did not port.** The introspection-inference helper is a nice trick and a
-  candidate for a later generic `@director/gql` export parameterised on the app's
+  candidate for a later generic `@directorkit/gql` export parameterised on the app's
   introspection type.

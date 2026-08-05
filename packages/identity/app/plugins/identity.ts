@@ -19,7 +19,7 @@ export default defineNuxtPlugin({
     if (!runtime.hasApi) {
       if (import.meta.dev) {
         console.warn(
-          "[identity] The @director/identity layer is extended but `identity.api` is "
+          "[identity] The @directorkit/identity layer is extended but `identity.api` is "
           + "not set in app.config — the identity plugin will not boot.",
         );
       }

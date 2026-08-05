@@ -2,7 +2,7 @@ import type { Page } from "@playwright/test";
 
 import { expect, test } from "./fixtures";
 
-// Against /gql: @director/gql builds one urql client from `app.config` and the playground
+// Against /gql: @directorkit/gql builds one urql client from `app.config` and the playground
 // points it at its own toy GraphQL server (server/api/graphql.post.ts). These tests drive
 // the wiring the unit suite cannot reach — SSR fetching over HTTP and hydrating from the
 // payload, reactive variables refetching, and the two failure channels (a payload's own

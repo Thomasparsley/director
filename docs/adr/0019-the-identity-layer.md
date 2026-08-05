@@ -26,7 +26,7 @@ transport is never the same twice.
 
 ## Decision
 
-**`@director/identity` is a logic-only layer extending `@director/common`, and the
+**`@directorkit/identity` is a logic-only layer extending `@directorkit/common`, and the
 app supplies its backend as an object implementing the `IdentityApi` interface,
 configured in `app.config`.**
 

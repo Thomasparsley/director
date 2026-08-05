@@ -83,7 +83,7 @@ playground/
 }
 ```
 
-Root `package.json` gains `"test:e2e": "pnpm --filter @director/playground test:e2e"`.
+Root `package.json` gains `"test:e2e": "pnpm --filter @directorkit/playground test:e2e"`.
 Nothing changes in any published package — E2E adds zero weight to the layers.
 
 ### playwright.config.ts (shape)
@@ -155,7 +155,7 @@ modes since URL behaviour is the whole point of the layer:
 - a visible result area (e.g. a filtered static list) so assertions have a
   behavioural anchor, not just URL inspection.
 
-**P2 — Dialogs wiring + demo page.** `@director/dialogs` is not in
+**P2 — Dialogs wiring + demo page.** `@directorkit/dialogs` is not in
 `playground/nuxt.config.ts` `extends` nor in its deps at all — the full
 five-part ritual applies. The demo page needs: a button opening a dialog, a
 nested (stacked) dialog, a dialog whose result resolves back to the opener, and
@@ -313,7 +313,7 @@ at all — noted in `filters-package-origin` memory):
 
 ### 5.8 `identity.spec.ts` — the session contract end to end
 
-Against `/identity`, where the playground plays the consumer: `@director/identity`
+Against `/identity`, where the playground plays the consumer: `@directorkit/identity`
 holds the session state and the app supplies the backend as an in-browser mock
 through the `IdentityApi` interface in `app.config` (`demo` / `demo`). Unit specs
 already cover the state machine with fakes; what only a browser proves is that the
@@ -335,7 +335,7 @@ tested; both need playground prerequisites before they can gain a spec.
 ### 5.9 `gql.spec.ts` — the GraphQL layer against a real server
 
 Against `/gql`, where the playground plays the consumer twice over: it configures
-`@director/gql` through `app.config` **and** serves the schema itself, from a toy
+`@directorkit/gql` through `app.config` **and** serves the schema itself, from a toy
 in-memory GraphQL route (`server/api/graphql.post.ts`). Unit specs cover the executors
 against a fake urql client; what only a browser proves is that a query really crosses
 the network during SSR and does not cross it again on hydration.

@@ -34,7 +34,7 @@ export interface KeepAliveControllerDeps {
  *
  * Pure and dependency-injected — the timer, clock, dialogs and session effects
  * are all passed in, so the state machine is unit-tested without a DOM. The
- * dialogs themselves are the consuming app's (e.g. via `@director/dialogs`);
+ * dialogs themselves are the consuming app's (e.g. via `@directorkit/dialogs`);
  * this layer holds no paint.
  */
 export function createKeepAliveController(deps: KeepAliveControllerDeps) {

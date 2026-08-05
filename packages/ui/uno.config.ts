@@ -1,4 +1,4 @@
-// uno.config.ts — @director/ui theme. Two tiers, split on how a value flips for dark mode:
+// uno.config.ts — @directorkit/ui theme. Two tiers, split on how a value flips for dark mode:
 //
 //   1. The palette (ported from firesport) is exposed directly through the UnoCSS theme —
 //      `bg-primary-600`, `text-gray-900`, `dark:text-gray-50`. Use this in markup.

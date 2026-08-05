@@ -7,5 +7,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["@director/playground"]
+  "ignore": ["@directorkit/playground"]
 }

@@ -1,24 +1,24 @@
-# @director/forms
+# @directorkit/forms
 
 A reactive form model for Nuxt: controls, groups, validators and transformers.
 Logic-only — it ships **no components**. Pair it with
-[`@director/form-ui`](https://www.npmjs.com/package/@director/form-ui) to bind the
+[`@directorkit/form-ui`](https://www.npmjs.com/package/@directorkit/form-ui) to bind the
 model to real inputs, or drive your own.
 
 ## Install
 
 ```bash
-npm install @director/forms
+npm install @directorkit/forms
 ```
 
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  extends: ["@director/forms"],
+  extends: ["@directorkit/forms"],
 });
 ```
 
-`@director/forms` is a **Nuxt layer**, not a built library: it ships raw source and
+`@directorkit/forms` is a **Nuxt layer**, not a built library: it ships raw source and
 the consuming app's Vite compiles it. `nuxt` and `vue` are peer dependencies.
 
 ## The model

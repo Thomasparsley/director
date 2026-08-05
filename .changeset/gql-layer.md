@@ -1,9 +1,9 @@
 ---
-"@director/gql": minor
-"@director/common": patch
+"@directorkit/gql": minor
+"@directorkit/common": patch
 ---
 
-New layer: `@director/gql` — one urql client per Nuxt app, configured from `app.config`,
+New layer: `@directorkit/gql` — one urql client per Nuxt app, configured from `app.config`,
 with typed query / mutation / subscription composables on top of it (SSR payload
 hydration, abortable queries, debounced refetching on reactive variables, shared-query
 collapsing, and typed per-code handling of a mutation payload's own `errors` list).
@@ -20,5 +20,5 @@ through the playground.
 `app/`, so `graphql-ws` is genuinely optional: an app that never subscribes neither
 installs nor typechecks it.
 
-`@director/common` gains the `NonNullableFields` type helper, which
+`@directorkit/common` gains the `NonNullableFields` type helper, which
 `handleMutationResult` uses to drop the `errors` field from a successful payload.

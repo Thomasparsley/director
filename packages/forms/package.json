@@ -1,5 +1,5 @@
 {
-  "name": "@director/forms",
+  "name": "@directorkit/forms",
   "version": "0.0.0",
   "description": "Reactive form model for Nuxt — controls, groups, validators and transformers. A Nuxt layer with no components.",
   "keywords": [
@@ -39,7 +39,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@director/common": "workspace:*"
+    "@directorkit/common": "workspace:*"
   },
   "peerDependencies": {
     "nuxt": "^4",

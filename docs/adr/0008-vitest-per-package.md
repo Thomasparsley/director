@@ -84,7 +84,7 @@ its exact shape.
   and every hand-written alias, and would test the wiring too. Rejected on speed:
   it means a Nuxt build per suite, for a repo whose tests are overwhelmingly
   about a form model and cva strings — neither of which needs Nuxt at all
-  (`@director/forms` and `@director/filters` have no components).
+  (`@directorkit/forms` and `@directorkit/filters` have no components).
 - **A shared root Vitest config with a workspace project list.** Would centralise
   the alias map. Rejected for now because each package must remain independently
   runnable (`pnpm -r test`) and publishable; revisit if the drift bites.

@@ -1,5 +1,5 @@
 {
-  "name": "@director/ui",
+  "name": "@directorkit/ui",
   "version": "0.0.0",
   "description": "Component kit and design tokens for Nuxt — auto-registered <D*> components on reka-ui, with the palette living in the UnoCSS theme.",
   "keywords": [
@@ -48,7 +48,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@director/common": "workspace:*",
+    "@directorkit/common": "workspace:*",
     "@internationalized/date": "3.12.2",
     "@nuxtjs/color-mode": "4.0.0",
     "@unocss/nuxt": "66.7.4",

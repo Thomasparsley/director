@@ -11,7 +11,7 @@ and auto-imports hand-stubbed. Its words: *"We test the code, not the wiring."* 
 built the E2E tier: Playwright against a production build of the playground, asserting
 flows through a browser.
 
-`@director/gql` is the first layer where that leaves a real hole. Almost everything it
+`@directorkit/gql` is the first layer where that leaves a real hole. Almost everything it
 does is **transport**: serializing an operation, choosing POST or GET, forwarding cookies
 during SSR, resolving a persisted document id, holding a subscription open on a socket.
 A fake urql client proves none of it — it proves the code around the transport. And a

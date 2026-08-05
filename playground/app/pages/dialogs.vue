@@ -38,7 +38,7 @@ const picker = useModalDialog<undefined, { choose: [value: string] }>(PickerDial
       Modal dialogs
     </h2>
     <p class=":uno: text-gray-600 dark:text-gray-300">
-      <code>@director/dialogs</code> demo — <code>useModalDialog</code> registers state with
+      <code>@directorkit/dialogs</code> demo — <code>useModalDialog</code> registers state with
       the manager; the app's <code>DialogHost</code> paints <code>manager.instances</code>.
     </p>
 

@@ -1,6 +1,6 @@
 import { fileURLToPath } from "node:url";
 
-// @director/ui — component kit + design tokens. Built on @director/common.
+// @directorkit/ui — component kit + design tokens. Built on @directorkit/common.
 // Components are auto-registered with the `D` prefix (e.g. <DButton>).
 // https://nuxt.com/docs/getting-started/layers
 export default defineNuxtConfig({
@@ -9,7 +9,7 @@ export default defineNuxtConfig({
   },
 
   extends: [
-    "@director/common",
+    "@directorkit/common",
   ],
 
   modules: [

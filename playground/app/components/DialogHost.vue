@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// The consumer's rendering shell for @director/dialogs. The layer holds state and hands us
+// The consumer's rendering shell for @directorkit/dialogs. The layer holds state and hands us
 // `manager.instances` (the dialogs worth painting, in open order); painting them — overlay,
 // stacking, escape/overlay-to-close — is our job (ADR-0017: dialogs hold state, not paint).
 // A minimal host on purpose: it proves the state contract, not a production modal.

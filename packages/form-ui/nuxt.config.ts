@@ -1,6 +1,6 @@
 import { fileURLToPath } from "node:url";
 
-// @director/form-ui — bindings between the @director/forms composables and the @director/ui
+// @directorkit/form-ui — bindings between the @directorkit/forms composables and the @directorkit/ui
 // input components. Each component takes a FormControl and wires value, error display and
 // blur → transform/validate, so app code never repeats that plumbing.
 // https://nuxt.com/docs/getting-started/layers
@@ -10,8 +10,8 @@ export default defineNuxtConfig({
   },
 
   extends: [
-    "@director/ui",
-    "@director/forms",
+    "@directorkit/ui",
+    "@directorkit/forms",
   ],
 
   components: [

@@ -1,7 +1,7 @@
 import { buildSchema, graphql } from "graphql";
 
 /**
- * A toy GraphQL server, so the playground's `@director/gql` demo runs against something
+ * A toy GraphQL server, so the playground's `@directorkit/gql` demo runs against something
  * real: SSR fetches over HTTP, hydration replays the payload, mutations round-trip.
  *
  * It is deliberately tiny and in-memory — the point is exercising the layer's wiring,

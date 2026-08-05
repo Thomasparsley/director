@@ -19,9 +19,9 @@ import type { Result } from "#layers/director-common/app/types/result";
  *
  * This module is the ONLY place the layer touches `@simplewebauthn/browser`, and it
  * deliberately lives OUTSIDE `app/` — the same reason, and the same precedent, as
- * `@director/gql`'s `transports/graphqlWs.ts`. Nuxt puts `<layer>/app/**` into the
+ * `@directorkit/gql`'s `transports/graphqlWs.ts`. Nuxt puts `<layer>/app/**` into the
  * consuming app's TypeScript program, so a file in there importing this package would make
- * every consumer of `@director/identity` install it just to typecheck, including apps that
+ * every consumer of `@directorkit/identity` install it just to typecheck, including apps that
  * will never register a passkey. Out here the file only joins the program of an app that
  * actually imports it, which is what makes the optional peer dependency honest.
  */

@@ -1,5 +1,5 @@
-// @director/forms — reactive form model layer: controls, groups, validators, transformers.
-// Pure logic, no components. Built on @director/common.
+// @directorkit/forms — reactive form model layer: controls, groups, validators, transformers.
+// Pure logic, no components. Built on @directorkit/common.
 // https://nuxt.com/docs/getting-started/layers
 export default defineNuxtConfig({
   $meta: {
@@ -7,6 +7,6 @@ export default defineNuxtConfig({
   },
 
   extends: [
-    "@director/common",
+    "@directorkit/common",
   ],
 });

@@ -1,4 +1,4 @@
-# @director/dialogs
+# @directorkit/dialogs
 
 Hand a component to `useModalDialog` / `useSheetDialog` and open it from anywhere —
 no `v-if` at the call site, no wrapper element, no dialog markup near the page that
@@ -7,17 +7,17 @@ opens it. The layer owns dialog **state**; painting it is the consumer's job.
 ## Install
 
 ```bash
-npm install @director/dialogs
+npm install @directorkit/dialogs
 ```
 
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  extends: ["@director/dialogs"],
+  extends: ["@directorkit/dialogs"],
 });
 ```
 
-`@director/dialogs` is a **Nuxt layer**, not a built library: it ships raw source and
+`@directorkit/dialogs` is a **Nuxt layer**, not a built library: it ships raw source and
 the consuming app's Vite compiles it. `nuxt` and `vue` are peer dependencies.
 
 ## Use it

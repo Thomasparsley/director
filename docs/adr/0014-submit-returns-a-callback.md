@@ -85,7 +85,7 @@ Two more decisions ride along:
   values from the submit itself (the created id, the server's response) — an
   options-object callback would have to receive them through a parameter the
   submit function has no way to type.
-- **Return a `Result<T, E>` and let the caller branch** (`@director/common` even
+- **Return a `Result<T, E>` and let the caller branch** (`@directorkit/common` even
   has the type). Puts the whole `if (result.success)` dance back at every call
   site, which is what this composable exists to remove.
 - **Let the caller wrap their own try/catch.** That is the status quo it replaces —

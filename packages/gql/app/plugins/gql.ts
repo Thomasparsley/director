@@ -29,7 +29,7 @@ export default defineNuxtPlugin({
     if (!runtime.hasUrl) {
       if (import.meta.dev) {
         console.warn(
-          "[gql] The @director/gql layer is extended but `gql.url` is not set in "
+          "[gql] The @directorkit/gql layer is extended but `gql.url` is not set in "
           + "app.config — the gql plugin will not boot.",
         );
       }

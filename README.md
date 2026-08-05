@@ -1,22 +1,22 @@
 # director
 
-Monorepo for the `@director/*` reusable UI / admin product line, built as a chain of Nuxt layers.
+Monorepo for the `@directorkit/*` reusable UI / admin product line, built as a chain of Nuxt layers.
 
 ```
-@director/common   shared logic (utils, composables, types) — no components
+@directorkit/common   shared logic (utils, composables, types) — no components
       ▲                    ▲                    ▲
-@director/ui         @director/forms      @director/dialogs   open a component as a modal / sheet
+@directorkit/ui         @directorkit/forms      @directorkit/dialogs   open a component as a modal / sheet
       ▲    ▲            ▲       ▲                             from anywhere — state only, no components
-      │    └─ @director/form-ui │     inputs bound to a FormControl (<DFormInput>) — the ui × forms bridge
+      │    └─ @directorkit/form-ui │     inputs bound to a FormControl (<DFormInput>) — the ui × forms bridge
       │                         │
-@director/core            @director/filters   URL-persisted filter state built on forms — no components
+@directorkit/core            @directorkit/filters   URL-persisted filter state built on forms — no components
 
-@director/common ◄── @director/identity   session/auth state behind an app-supplied IdentityApi
-                 ◄── @director/gql        one urql client + typed query/mutation composables,
+@directorkit/common ◄── @directorkit/identity   session/auth state behind an app-supplied IdentityApi
+                 ◄── @directorkit/gql        one urql client + typed query/mutation composables,
                                           configured in app.config — state only, no components
 ```
 
-Consuming apps (e.g. firesport) install and `extends: ["@director/core", "@director/forms"]`.
+Consuming apps (e.g. firesport) install and `extends: ["@directorkit/core", "@directorkit/forms"]`.
 
 Why it is shaped this way — the layer graph, the TypeScript 6 pin, the forms model,
 the component authoring convention — is recorded in [docs/adr](docs/adr/README.md).
@@ -24,7 +24,7 @@ the component authoring convention — is recorded in [docs/adr](docs/adr/README
 ## Stack
 
 - **pnpm workspaces** — packages live in `packages/*`, linked via `workspace:*`.
-- **Changesets** — versioning + publishing the `@director` scope publicly to npm
+- **Changesets** — versioning + publishing the `@directorkit` scope publicly to npm
   ([ADR-0020](docs/adr/0020-publish-publicly-to-npm.md)); releases run from CI.
 - **Playground** — the dev app in `playground/` is the workbench: it extends the whole chain,
   so it is where the layers are seen working together (`pnpm dev`).
@@ -67,7 +67,7 @@ publish` only sends versions the registry does not already have, so a tag that
 bumped one layer publishes one package.
 
 The workflow needs one secret, `NPM_TOKEN` — an npm automation token for the
-`@director` scope.
+`@directorkit` scope.
 
 > The tag is a repo-level release marker, not a package version. The layers version
 > independently ([ADR-0003](docs/adr/0003-pnpm-workspace-changesets-private-scope.md)),
@@ -76,22 +76,22 @@ The workflow needs one secret, `NPM_TOKEN` — an npm automation token for the
 To check what a package would actually ship before releasing it:
 
 ```bash
-pnpm --filter @director/ui exec npm pack --dry-run
+pnpm --filter @directorkit/ui exec npm pack --dry-run
 ```
 
 ## Layout
 
 ```
 packages/
-  common/   @director/common
-  ui/       @director/ui   (uno.config.ts + design tokens live here)
-  core/     @director/core
-  forms/    @director/forms
-  form-ui/  @director/form-ui
-  filters/  @director/filters
-  dialogs/  @director/dialogs
-  identity/ @director/identity
-  gql/      @director/gql
+  common/   @directorkit/common
+  ui/       @directorkit/ui   (uno.config.ts + design tokens live here)
+  core/     @directorkit/core
+  forms/    @directorkit/forms
+  form-ui/  @directorkit/form-ui
+  filters/  @directorkit/filters
+  dialogs/  @directorkit/dialogs
+  identity/ @directorkit/identity
+  gql/      @directorkit/gql
 playground/ dev app that extends the whole chain — the only place it is assembled for real
 ```
 
@@ -104,5 +104,5 @@ mandatory for every consumer (see [ADR-0007](docs/adr/0007-design-tokens-palette
 
 ```ts
 // app uno.config.ts
-export { default } from "@director/ui/uno.config";
+export { default } from "@directorkit/ui/uno.config";
 ```

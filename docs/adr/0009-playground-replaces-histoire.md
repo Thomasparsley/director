@@ -5,7 +5,7 @@ Status: Accepted
 ## Context
 
 The scaffold (`4d8a644`) set up Histoire as the component workbench in
-`@director/ui`: `histoire.config.ts`, `histoire.setup.ts`, a
+`@directorkit/ui`: `histoire.config.ts`, `histoire.setup.ts`, a
 `button.story.vue`, and `pnpm story` / `pnpm story:build` scripts.
 
 The firesport import (`827d677`) replaced `button.vue` wholesale. Its story went
@@ -39,7 +39,7 @@ follow from that:
   `typecheck`). This is the only place the assembled chain typechecks as one
   program.
 - `playground/uno.config.ts` rehearses the consumer contract on purpose: *"This is
-  the same pattern firesport will use when it adopts @director/ui"* (ADR-0007).
+  the same pattern firesport will use when it adopts @directorkit/ui"* (ADR-0007).
 - `pages/[...slug].vue` exists purely as a fixture: *"Catch-all so every demo link
   in the sidebar resolves to a real route — that's what the navigation's active
   state and auto-expand are keyed off"*.
@@ -62,7 +62,7 @@ along the package/app boundary.
   document.body`. Histoire would have supplied none of that either — but a
   component-per-story workbench would at least have isolated components. We gave
   that up for galleries.
-- **`@director/filters` has no playground page** — it is in `extends` and in the
+- **`@directorkit/filters` has no playground page** — it is in `extends` and in the
   deps since `ceb16f3`, but nothing under `playground/app/` calls `useFilters`. It
   is the only layer without a demo, and the ritual above is what it is missing.
 - **The README still advertises Histoire and `pnpm story`** (a script that no
@@ -72,7 +72,7 @@ along the package/app boundary.
 
 ## Alternatives considered
 
-- **Keep Histoire for `@director/ui` only**, where the components are mostly
+- **Keep Histoire for `@directorkit/ui` only**, where the components are mostly
   Nuxt-independent, and use the playground for `core`. Rejected: two workbenches,
   two sets of setup, and the boundary would move every time a `ui` component
   reached for an auto-imported icon — which `test/icons.ts` shows they already do.

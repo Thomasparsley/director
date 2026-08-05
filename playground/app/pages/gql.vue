@@ -76,7 +76,7 @@ async function triggerServerError() {
 <template>
   <div class=":uno: flex flex-col gap-8">
     <p class=":uno: text-gray-600 dark:text-gray-300">
-      <code>@director/gql</code> demo — one urql client configured from <code>app.config</code>,
+      <code>@directorkit/gql</code> demo — one urql client configured from <code>app.config</code>,
       talking to the playground's own toy GraphQL server.
     </p>
 

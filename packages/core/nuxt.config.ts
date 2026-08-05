@@ -1,7 +1,7 @@
 import { fileURLToPath } from "node:url";
 
-// @director/core — pre-built administration building blocks (shells, CRUD / table / form
-// scaffolds). Built on @director/ui. Apps customize via Nuxt layer overrides, not forking.
+// @directorkit/core — pre-built administration building blocks (shells, CRUD / table / form
+// scaffolds). Built on @directorkit/ui. Apps customize via Nuxt layer overrides, not forking.
 // https://nuxt.com/docs/getting-started/layers
 export default defineNuxtConfig({
   $meta: {
@@ -9,7 +9,7 @@ export default defineNuxtConfig({
   },
 
   extends: [
-    "@director/ui",
+    "@directorkit/ui",
   ],
 
   components: [

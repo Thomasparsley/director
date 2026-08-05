@@ -1,6 +1,6 @@
 import { expect, test } from "./fixtures";
 
-// Against /identity: @director/identity holds session state; the playground supplies
+// Against /identity: @directorkit/identity holds session state; the playground supplies
 // the backend as an in-browser mock via the `IdentityApi` interface in app.config
 // (demo / demo). These tests drive the consumer contract — bootstrap settling to
 // anonymous, login loading the user, the marker cookies carrying the session across

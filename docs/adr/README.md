@@ -13,7 +13,7 @@ are mostly subject lines only. This is where it lives from now on.
 | --- | ----- | ------ |
 | [0001](0001-nuxt-layers-not-a-built-library.md) | Ship the packages as Nuxt layers, not a built component library | Accepted |
 | [0002](0002-the-layer-graph.md) | The layer graph: two chains from common, joined at form-ui | Accepted |
-| [0003](0003-pnpm-workspace-changesets-private-scope.md) | pnpm workspace, Changesets, and the private @director scope | Accepted (registry superseded by [0020](0020-publish-publicly-to-npm.md)) |
+| [0003](0003-pnpm-workspace-changesets-private-scope.md) | pnpm workspace, Changesets, and the private @directorkit scope | Accepted (registry superseded by [0020](0020-publish-publicly-to-npm.md)) |
 | [0004](0004-hold-the-graph-on-typescript-6.md) | Hold the whole graph on TypeScript 6 | Accepted |
 | [0005](0005-one-component-four-files.md) | One component, four files (.vue / .types / .variants / .spec) | Accepted |
 | [0006](0006-reka-ui-and-component-context.md) | reka-ui for behaviour, symbol-keyed context for compound components | Accepted |
@@ -30,7 +30,7 @@ are mostly subject lines only. This is where it lives from now on.
 | [0017](0017-dialogs-hold-state-not-paint.md) | The dialogs layer holds dialog state, and does not paint it | Accepted |
 | [0018](0018-e2e-through-the-playground.md) | E2E through the playground, with Playwright | Accepted |
 | [0019](0019-the-identity-layer.md) | The identity layer: session state behind an app-supplied API interface | Accepted |
-| [0020](0020-publish-publicly-to-npm.md) | Publish the @director scope publicly to npm | Accepted |
+| [0020](0020-publish-publicly-to-npm.md) | Publish the @directorkit scope publicly to npm | Accepted |
 | [0021](0021-the-gql-layer.md) | The gql layer: one configured urql client behind app.config | Accepted |
 | [0022](0022-integration-tests-against-a-real-nuxt-server.md) | Integration tests against a real Nuxt server | Accepted |
 

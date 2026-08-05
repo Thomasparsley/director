@@ -1,15 +1,15 @@
-// Playground app — extends @director/core (→ @director/ui → @director/common) so you can
+// Playground app — extends @directorkit/core (→ @directorkit/ui → @directorkit/common) so you can
 // develop and verify the whole layer chain together: `pnpm dev` from the repo root.
 export default defineNuxtConfig({
   extends: [
-    "@director/core",
-    "@director/ui",
-    "@director/forms",
-    "@director/form-ui",
-    "@director/filters",
-    "@director/dialogs",
-    "@director/identity",
-    "@director/gql",
+    "@directorkit/core",
+    "@directorkit/ui",
+    "@directorkit/forms",
+    "@directorkit/form-ui",
+    "@directorkit/filters",
+    "@directorkit/dialogs",
+    "@directorkit/identity",
+    "@directorkit/gql",
   ],
 
   devtools: { enabled: true },

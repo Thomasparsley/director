@@ -59,7 +59,7 @@ export interface IdentityPasskeyApi {
  *
  * A type here and an implementation in `transports/passkey.ts`, which is the only file that
  * touches `@simplewebauthn/browser`. The app builds one and hands it over through
- * `app.config`, exactly as `@director/gql` does with `forwardSubscription` — that indirection
+ * `app.config`, exactly as `@directorkit/gql` does with `forwardSubscription` — that indirection
  * is what keeps the browser package out of every consumer's TypeScript program.
  */
 export interface PasskeyCeremony {

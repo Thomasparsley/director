@@ -1,5 +1,5 @@
 {
-  "name": "@director/dialogs",
+  "name": "@directorkit/dialogs",
   "version": "0.0.0",
   "description": "Open any component as a modal or sheet from anywhere — dialog state for Nuxt, with no v-if and no wrapper element.",
   "keywords": [
@@ -40,7 +40,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@director/common": "workspace:*",
+    "@directorkit/common": "workspace:*",
     "@vueuse/core": "14.3.0"
   },
   "peerDependencies": {

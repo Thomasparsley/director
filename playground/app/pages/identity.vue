@@ -104,7 +104,7 @@ function describe(error: PasskeyErrorResults): string {
       Identity session
     </h2>
     <p class=":uno: text-gray-600 dark:text-gray-300">
-      <code>@director/identity</code> demo — the plugin boots the session from the marker
+      <code>@directorkit/identity</code> demo — the plugin boots the session from the marker
       cookies, and the app supplies the backend through the <code>IdentityApi</code>
       interface in <code>app.config</code> (here: an in-browser mock, <code>demo</code> /
       <code>demo</code>). The session survives a reload.

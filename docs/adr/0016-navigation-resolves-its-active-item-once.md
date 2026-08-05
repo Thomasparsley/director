@@ -4,10 +4,10 @@ Status: Accepted
 
 ## Context
 
-`3b15f65` is where `@director/core` stopped being a layer-chain smoke test and
+`3b15f65` is where `@directorkit/core` stopped being a layer-chain smoke test and
 became a product. The shell it replaced said so itself:
 
-> Placeholder admin shell to seed @director/core and demonstrate the layer chain
+> Placeholder admin shell to seed @directorkit/core and demonstrate the layer chain
 > (core → ui → common). **Replace with the real administration building blocks.**
 
 It took a `title?: string` prop, rendered `min-h-screen`, and had one slot. The
