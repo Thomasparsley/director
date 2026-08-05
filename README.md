@@ -56,9 +56,13 @@ Releases are cut from a **tag**. Every user-visible change lands with a changese
 ```bash
 pnpm version-packages                  # applies the changesets: versions + CHANGELOGs
 git commit -am "chore: version packages"
-git tag v0.1.0
+git tag -a v0.1.0 -m "v0.1.0"          # annotated: --follow-tags skips lightweight tags
 git push origin main --follow-tags
 ```
+
+> The `-a` is not cosmetic. `git tag v0.1.0` makes a *lightweight* tag, which
+> `--follow-tags` silently declines to push — the commit lands, no tag appears on the
+> remote, and the release workflow simply never fires.
 
 `.github/workflows/release.yml` fires on any `v<major>.<minor>.<patch>` tag. It
 refuses a tag whose commit is not on `main` or that still has pending changesets,
