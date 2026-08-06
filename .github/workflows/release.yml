@@ -80,34 +80,18 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      # `whoami` proves the token is valid; it proves nothing about whether this token may
-      # publish to this scope. A granular token restricted to "only select packages"
-      # cannot create the first package in an empty scope — there was nothing to select
-      # when it was minted — and npm reports that as a 404, which changesets then eats.
-      - name: Diagnose the token's access to @directorkit
-        run: |
-          echo "authenticated as: $(npm whoami)"
-          npm access list packages @directorkit \
-            || echo "::warning::cannot list @directorkit — the token has no scope-level access"
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        continue-on-error: true
-
-      # changesets renders *every* publish failure as `TypeError: ... reading 'includes'`,
-      # crashing in the handler that was meant to read npm's error, so the actual message
-      # never reaches the log. Publish one package directly first — same credentials, same
-      # flags, but npm's own stderr is visible. `@directorkit/common` is the right probe:
-      # it sits at the root of the chain and depends on no other @directorkit package.
-      # If it succeeds, the `pnpm release` below simply skips it, since that publishes
-      # only what the registry does not already have.
-      - name: Publish one package directly, for a readable error
-        run: pnpm --filter @directorkit/common publish --no-git-checks --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: "true"
-
       # Publishes every package whose version is not already on the registry and
       # skips the rest — so a tag that bumped one layer publishes one package.
+      #
+      # Nothing may publish to this scope *before* this step. changesets decides what to
+      # skip from an `npm info` sweep it runs at the start, and the registry is
+      # read-after-write inconsistent: during v0.1.0 a package published seconds earlier
+      # still came back 404, so changesets published it a second time. npm rejected the
+      # duplicate, and `isAlreadyPublishedError` — the handler whose whole purpose is to
+      # absorb that rejection — crashed on the error object pnpm hands it
+      # (`Cannot read properties of undefined (reading 'includes')`), aborting the run
+      # with five packages still unpublished. Every publish failure looks like that
+      # TypeError, so treat one as "read the registry, not the stack trace".
       - run: pnpm release
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
