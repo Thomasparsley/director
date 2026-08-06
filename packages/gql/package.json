@@ -1,6 +1,6 @@
 {
   "name": "@directorkit/gql",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A configured urql client for Nuxt with typed query/mutation/subscription composables — SSR payload hydration, abortable queries, persisted documents. No components.",
   "keywords": [
     "nuxt",
@@ -30,7 +30,8 @@
     "!transports/**/*.spec.ts"
   ],
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "engines": {
     "node": ">=20"
@@ -43,7 +44,7 @@
     "test:integration": "vitest run --config vitest.integration.config.ts"
   },
   "dependencies": {
-    "@directorkit/common": "workspace:*",
+    "@directorkit/common": "workspace:^",
     "@vueuse/core": "14.3.0",
     "ohash": "^2.0.11",
     "wonka": "^6.3.5"

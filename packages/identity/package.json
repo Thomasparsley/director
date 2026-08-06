@@ -1,6 +1,6 @@
 {
   "name": "@directorkit/identity",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Session/auth state for Nuxt behind an app-supplied IdentityApi — session machine, token lifecycle, keep-alive. No components.",
   "keywords": [
     "nuxt",
@@ -31,7 +31,8 @@
     "!transports/**/*.spec.ts"
   ],
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "engines": {
     "node": ">=20"
@@ -43,7 +44,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@directorkit/common": "workspace:*",
+    "@directorkit/common": "workspace:^",
     "@vueuse/core": "14.3.0"
   },
   "peerDependencies": {

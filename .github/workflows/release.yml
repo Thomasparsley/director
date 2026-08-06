@@ -62,14 +62,11 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
 
-      # `setup-node` puts its auth in an .npmrc it points at with NPM_CONFIG_USERCONFIG,
-      # which pnpm does not reliably read — and an unauthenticated scoped publish comes
-      # back from npm as a bare 404. Write the token into the project .npmrc, where pnpm
-      # is certain to find it. The value stays an env reference rather than the secret
-      # itself: npm expands `${...}` when it reads the file, so the token never lands on
-      # disk.
-      - name: Authenticate to npm
-        run: echo '//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}' >> .npmrc
+      # Auth comes from `setup-node`, which writes an .npmrc and points NPM_CONFIG_USERCONFIG
+      # at it. v0.1.0 also wrote the token into the *project* .npmrc on the theory that pnpm
+      # ignored setup-node's copy; pnpm refused to read it ("environment variables are not
+      # expanded in registry credentials that come from a project .npmrc, because that file
+      # is committed to the repository") and published fine regardless. Don't add it back.
 
       # Fail here, loudly, rather than inside `changeset publish` — which reports a bad
       # token as `TypeError: Cannot read properties of undefined (reading 'includes')`,
@@ -92,9 +89,15 @@ jobs:
       # (`Cannot read properties of undefined (reading 'includes')`), aborting the run
       # with five packages still unpublished. Every publish failure looks like that
       # TypeError, so treat one as "read the registry, not the stack trace".
+      # Provenance is NOT configured here. v0.1.0 set NPM_CONFIG_PROVENANCE on this step, on
+      # the belief that pnpm forwards it to the npm CLI; it does not, and all nine packages
+      # shipped unattested. It now lives in each package's `publishConfig`, which pnpm reads
+      # directly. `--provenance` is absent from pnpm 11.9's `publish --help` and present in
+      # current pnpm, which is part of why `packageManager` moved to 11.20. The
+      # `id-token: write` permission above is what makes the OIDC exchange possible.
+      #
+      # Verify it landed rather than assuming: `npm view @directorkit/ui dist.attestations`
+      # must not be empty. That check is what caught this the first time.
       - run: pnpm release
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          # pnpm has no --provenance flag; it shells out to the npm CLI, which
-          # reads this. Needs the id-token permission above.
-          NPM_CONFIG_PROVENANCE: "true"

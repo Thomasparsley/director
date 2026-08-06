@@ -1,6 +1,6 @@
 {
   "name": "@directorkit/filters",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "URL-persisted page filter state for Nuxt, built on @directorkit/forms. A Nuxt layer with no components.",
   "keywords": [
     "nuxt",
@@ -28,7 +28,8 @@
     "!app/**/*.spec.ts"
   ],
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "engines": {
     "node": ">=20"
@@ -40,8 +41,8 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@directorkit/common": "workspace:*",
-    "@directorkit/forms": "workspace:*",
+    "@directorkit/common": "workspace:^",
+    "@directorkit/forms": "workspace:^",
     "@vueuse/core": "14.3.0"
   },
   "peerDependencies": {

@@ -1,6 +1,6 @@
 {
   "name": "@directorkit/core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Administration building blocks for Nuxt — app shell, navigation and CRUD scaffolds built on @directorkit/ui.",
   "keywords": [
     "nuxt",
@@ -28,7 +28,8 @@
     "!app/**/*.spec.ts"
   ],
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "engines": {
     "node": ">=20"
@@ -40,8 +41,8 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@directorkit/common": "workspace:*",
-    "@directorkit/ui": "workspace:*",
+    "@directorkit/common": "workspace:^",
+    "@directorkit/ui": "workspace:^",
     "class-variance-authority": "0.7.1",
     "reka-ui": "2.9.8"
   },

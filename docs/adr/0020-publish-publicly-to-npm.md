@@ -83,6 +83,38 @@ source is public on GitHub anyway.
 - MIT means downstream forks are permitted and the warranty disclaimer is the whole
   of the liability position.
 
+## What the first release actually cost
+
+v0.1.0 published on the fifth attempt, and four of the failures were the same failure
+wearing different clothes: `changeset publish` renders *every* publish error as
+`TypeError: Cannot read properties of undefined (reading 'includes')`, crashing inside
+the handler meant to read npm's message. Nothing about the real cause reaches the log.
+The way out was to publish one package outside changesets, where npm's stderr is
+visible; the answer turned out to be that npm now requires a granular token with
+"bypass 2FA" to publish, which no amount of reading the stack trace would have said.
+**Treat that TypeError as "go read the registry", never as a clue.**
+
+Three things about the artifacts were wrong in ways that only a published package can
+reveal, and none could be fixed in place — they cost a 0.1.1:
+
+- **Provenance needs `publishConfig`, not the environment.** `NPM_CONFIG_PROVENANCE`
+  is an npm-CLI setting and pnpm does not forward it, so the workflow claimed
+  attestation it never produced. It belongs in each package's `publishConfig`, where
+  pnpm reads it. Attestation is not visible in the release log, so verify it on the
+  registry: `npm view @directorkit/ui dist.attestations`.
+- **A README in the tarball is not a README on npmjs.com.** The page renders from the
+  registry metadata, which pnpm stopped sending and restored in 11.13 — so the pnpm
+  version in `packageManager` is a publishing contract, not just a dev-tooling
+  preference.
+- **`workspace:*` publishes an exact pin.** 0.1.0 shipped
+  `"@directorkit/common": "0.1.0"`, which would give a consumer two copies of a layer
+  as soon as versions drift, and two layers with the same `$meta.name` fight over one
+  `#layers/...` alias. `workspace:^` publishes `^0.1.1` and dedupes. This is the
+  independent-versioning cost ADR-0003 accepted, arriving exactly where predicted.
+
+The general lesson: the release pipeline is only observable from the registry. Every
+one of these passed CI green.
+
 ## Alternatives considered
 
 - **Stay on GitHub Packages, publicly.** GitHub Packages has no anonymous read for
