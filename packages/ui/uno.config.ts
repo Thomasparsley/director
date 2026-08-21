@@ -14,6 +14,7 @@
 // See docs/adr/0007-design-tokens-palette-in-the-uno-theme.md.
 
 import {
+  cssIdRE,
   defineConfig,
   presetTypography,
   presetWind4,
@@ -72,6 +73,27 @@ export default defineConfig({
         /\.(vue|svelte|[jt]sx|vine\.ts|mdx?|astro|elm|php|phtml|marko|html)($|\?)/,
         /\.[jt]s($|\?)/,
       ],
+      // The widening above is why this is here. Scanning every .js turns the whole
+      // of node_modules into "markup", and compiled library code is bracket soup the
+      // extractor reads as arbitrary-value candidates — it mints utilities out of
+      // loop variables (`.p[i++]`, `.m[1]{margin:1}`). A consuming app got ~2200
+      // node_modules files scanned this way, and elkjs (a GWT-compiled bundle that
+      // @unovis pulls in for graph layout) produced a candidate with an unbalanced
+      // bracket, so postcss could not parse the generated CSS and the build died.
+      //
+      // Nothing out there is ours to style: headless libraries carry no classes, and
+      // the .vue files that do (Nuxt's error-404/error-500) inline their whole
+      // stylesheet through useHead and render fine without us.
+      //
+      // The @directorkit carve-out is the point: when these packages are installed
+      // from npm rather than linked, OUR cva files live in node_modules too, and
+      // excluding them would ship exactly the unstyled components the include above
+      // exists to prevent. The lookahead spares any path with an @directorkit
+      // segment, which covers both the flat and the pnpm store layouts.
+      //
+      // cssIdRE is UnoCSS's own default exclude, restated because setting `exclude`
+      // replaces that default instead of adding to it.
+      exclude: [cssIdRE, /[\\/]node_modules[\\/](?![^]*@directorkit[\\/])/],
     },
   },
 

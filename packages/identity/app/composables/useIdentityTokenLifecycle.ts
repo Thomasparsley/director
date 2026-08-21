@@ -3,13 +3,15 @@ import { onScopeDispose, watch } from "vue";
 
 import { createTokenLifecycle } from "../session/tokenLifecycle";
 import { useSessionStore } from "../session/store";
-import type { SessionExpiredReason } from "../session/types";
+import type { SessionExpiredReason, SessionRecoveryOutcome } from "../session/types";
 
 import { useIdentityRuntime } from "./useIdentityRuntime";
 
 interface UseIdentityTokenLifecycleOptions {
   /** Renew the token; rejects only on transient failure. */
   refresh: () => Promise<void>
+  /** Trade the refresh token for a new access token once the access token is dead. */
+  recoverSession: () => Promise<SessionRecoveryOutcome>
   /** How to settle the session when the token is gone/expired and unrenewable. */
   onExpired?: (reason: SessionExpiredReason) => void
   /** Idle gate; when it returns false the keep-alive flow takes over. */
@@ -48,6 +50,8 @@ export function useIdentityTokenLifecycle(options: UseIdentityTokenLifecycleOpti
     hasToken: () => store.hasAccessToken.value,
     reloadCookie: () => store.reloadCookie(),
     refresh: options.refresh,
+    canRecoverSession: () => store.hasRefreshToken.value,
+    recoverSession: options.recoverSession,
     onExpired: options.onExpired ?? defaultOnExpired,
     shouldRenew: options.shouldRenew,
     onIdleRefreshDue: options.onIdleRefreshDue,
@@ -67,6 +71,10 @@ export function useIdentityTokenLifecycle(options: UseIdentityTokenLifecycleOpti
     store.setAnonymous();
   }
 
+  // Every way a suspended tab can come back. On a phone, hiding the browser and
+  // reopening it minutes later fires `visibilitychange` (and `pageshow` when the page
+  // comes back from the bfcache) — that is the moment to re-check the token instead
+  // of trusting a timer that never ran.
   useEventListener(document, "visibilitychange", () => {
     if (document.visibilityState === "visible") {
       lifecycle.resync();
@@ -74,6 +82,7 @@ export function useIdentityTokenLifecycle(options: UseIdentityTokenLifecycleOpti
   });
   useEventListener(window, "focus", () => lifecycle.resync());
   useEventListener(window, "online", () => lifecycle.resync());
+  useEventListener(window, "pageshow", () => lifecycle.resync());
 
   // Re-arm when login/refresh writes a new expiry.
   watch(() => store.expiresAtMs.value, () => lifecycle.reschedule());

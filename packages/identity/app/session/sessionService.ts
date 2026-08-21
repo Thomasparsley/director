@@ -7,7 +7,7 @@ import type { IdentityUser } from "../types/user";
 import { noopIdentityLogger } from "../utils/logger";
 
 import type { useSessionStore } from "./store";
-import type { SessionLogger } from "./types";
+import type { SessionLogger, SessionRecoveryOutcome } from "./types";
 
 export type LoginOutcome
   = | { readonly status: "OK" }
@@ -211,8 +211,11 @@ export function createIdentitySession({
    *
    * The three outcomes are distinct on purpose — `unreachable` is a network failure, not an answer,
    * and must not be read as "the session is over".
+   *
+   * Two callers: `bootstrap`, for the browser-restart path, and the token lifecycle's wake resync,
+   * for a session whose access token died while the tab was suspended.
    */
-  async function recoverFromRefreshToken(): Promise<"recovered" | "rejected" | "unreachable"> {
+  async function recoverFromRefreshToken(): Promise<SessionRecoveryOutcome> {
     logger.debug("No access token but a refresh cookie is present; recovering the session");
 
     const result = await api.sendRefreshAccessTokenRequest();
@@ -312,6 +315,7 @@ export function createIdentitySession({
     authenticate,
     login,
     refreshAccessToken,
+    recoverFromRefreshToken,
     logout,
     revokeSession,
     bootstrap,

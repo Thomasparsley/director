@@ -53,6 +53,7 @@ export function useIdentityInstance() {
 
   const tokenLifecycle = useIdentityTokenLifecycle({
     refresh: auth.refreshAccessToken,
+    recoverSession: auth.recoverFromRefreshToken,
     shouldRenew: () => !isIdleGetter(),
     onIdleRefreshDue: () => idleRefreshDueHandler(),
     onExpired: reason => expiredHandler(reason),

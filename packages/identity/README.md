@@ -165,6 +165,13 @@ restarted, refresh cookie still present" sessions and retries fetches that faile
 during SSR. Silent token renewal runs while the session is authorized — scheduled by
 absolute expiry, resynced on tab wake — and pauses when it is not.
 
+A tab that comes back to a dead access token (the phone-in-pocket case: timers do not
+run while the browser is suspended) does not settle as expired on the spot. The wake
+resync trades the refresh cookie for a new access token first, and only a backend that
+refuses the exchange ends the session — with `wake-recovery-failed` rather than
+`wake-expired`, so an app can tell the two apart. A network failure ends nothing: the
+session is left as it is and the next wake event tries again.
+
 ### Route guards
 
 The layer ships no middleware (redirect targets are app policy). Write yours against
@@ -194,6 +201,22 @@ identity.hasUserPermission({ permissions: ["EVENT_OWNER", "LEAGUE_OWNER"] }); //
 identity.hasUserPermission({ permission: "EVENT_OWNER", collection: scopedCollection }); // walks inheritsFrom
 const canEdit = identity.useHasUserPermission({ permission: "EVENT_OWNER" }); // ComputedRef
 ```
+
+For the coarser "may this reader be here at all?" question — a screen shell deciding
+between rendering and a 403 — reach for the chain helper directly:
+
+```ts
+import { scopeChainHasAnyPermission } from "#layers/director-identity/app/core/permissions";
+
+if (!scopeChainHasAnyPermission(event.permissions)) {
+  throw createError({ statusCode: 403 });
+}
+```
+
+Both chain helpers walk `inheritsFrom` to the end, which matters when a backend
+answers a scoped query with a derived row: the row itself carries no permissions and
+hangs the real grant off its parent, so reading `scope.permissions` alone reports "no
+grant" for someone who in fact owns the parent scope.
 
 ### MFA / step-up challenges
 
