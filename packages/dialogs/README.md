@@ -38,6 +38,8 @@ component's events land in, which is also how a dialog resolves a value back to 
 opener (`choose: value => { result.value = value; picker.closeDialog(); }`).
 `onCloseEvent` fires however the dialog was dismissed. TypeScript enforces the pair:
 a component with no props takes no `props` key at all, rather than an empty object.
+A props type that is itself a discriminated union is fine — the check is written
+`[TProps] extends [undefined]` so the conditional does not distribute over it.
 
 `useSheetDialog` is the same API for a sheet, plus `direction` (`"right"` by
 default). Both accept `isCloseable`, `withPadding`, `onClose`, and

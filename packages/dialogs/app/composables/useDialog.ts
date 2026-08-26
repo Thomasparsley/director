@@ -9,6 +9,11 @@ import { useDialogInstance } from "./useDialogInstance";
 /**
  * `props` and `emits` are required exactly when the component declares them, so a
  * dialog with no props takes no `props` key rather than an empty object.
+ *
+ * The `[T] extends [undefined]` brackets are load-bearing. A naked type parameter makes
+ * the conditional distributive, so a component whose props are a discriminated union
+ * would demand a `ComputedRef` of one arm or the other — and a `ComputedRef` of the
+ * union satisfies neither. Wrapping both sides in a tuple checks the union as a whole.
  */
 type DialogConfig<TProps, TEmits> = {
   isCloseable?: boolean
@@ -21,8 +26,8 @@ type DialogConfig<TProps, TEmits> = {
   /** Keep the dialog registered when the opening component unmounts. Defaults to unregistering on unmount. */
   unregisterOnUnmount?: boolean
 }
-& (TProps extends undefined ? { props?: undefined } : { props: ComputedRef<TProps> })
-& (TEmits extends undefined ? { emits?: undefined } : { emits: EmitsToEvents<TEmits> });
+& ([TProps] extends [undefined] ? { props?: undefined } : { props: ComputedRef<TProps> })
+& ([TEmits] extends [undefined] ? { emits?: undefined } : { emits: EmitsToEvents<TEmits> });
 
 /** Registers `component` as a centred modal. */
 export function useModalDialog<TProps = undefined, TEmits = undefined, T = unknown>(
