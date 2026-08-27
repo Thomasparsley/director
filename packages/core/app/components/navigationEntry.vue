@@ -147,7 +147,11 @@ const showTooltip = computed(() => props.collapsed === true && props.tooltip !==
       </AccordionTrigger>
     </AccordionHeader>
 
-    <AccordionContent class="d-accordion-content :uno: of-hidden">
+    <!-- `:uno:` has to open the literal — with the marker in the middle the transformer
+         never fires and the whole string ships uncompiled, `:uno:` and all. The
+         animation hook rides along: it is unknown to Uno, so `keepUnknown` keeps it
+         next to the hashed class. -->
+    <AccordionContent class=":uno: d-accordion-content of-hidden">
       <ul class=":uno: ml-4.5 mt-0.5 flex flex-col gap-0.5 border-l border-black/10 pl-2 dark:border-white/10">
         <DNavigationEntry
           v-for="child in item.children"
