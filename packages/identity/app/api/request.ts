@@ -45,6 +45,19 @@ function canUseAbortTimeout(): boolean {
   return typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function";
 }
 
+/**
+ * Did the request go out and never come back, as opposed to never opening at all?
+ *
+ * `AbortSignal.timeout` rejects with a `TimeoutError` DOMException; a caller-owned abort
+ * rejects with `AbortError`. Both mean "no answer came back" — which deserves different
+ * advice from an unreachable server, the one case where "check your connection" is the
+ * right thing to tell someone. Every identity client keeps the two apart with this.
+ */
+export function isTimeoutError(error: unknown): boolean {
+  const name = (error as { name?: string } | null)?.name;
+  return name === "TimeoutError" || name === "AbortError";
+}
+
 /** Parses a JSON body, returning `null` (never throwing) on invalid/empty JSON. */
 export async function parseJsonResponse<T>(response: Response): Promise<T | null> {
   try {

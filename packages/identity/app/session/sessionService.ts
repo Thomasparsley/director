@@ -1,6 +1,5 @@
-import type { ErrorResult, Result } from "#layers/director-common/app/types/result";
-
 import { LoginErrorResults, RefreshErrorResults } from "../errors/identityApiErrors";
+import type { LoginErrorOnlyResult, LoginResult } from "../errors/identityApiErrors";
 import type { LoginCredentialsRequest } from "../types/api";
 import type { IdentityTokenApi } from "../types/identityApi";
 import type { IdentityUser } from "../types/user";
@@ -22,7 +21,7 @@ export interface SessionServiceDeps {
    * service stays free of any data-fetching internals and can be unit-tested
    * with a plain fake.
    */
-  fetchUser: () => Promise<Result<IdentityUser, LoginErrorResults>>
+  fetchUser: () => Promise<LoginResult<IdentityUser>>
   logger?: SessionLogger
   /**
    * Default for `bootstrap`'s `canRecover` when the caller gives no hint. The Nuxt
@@ -50,7 +49,7 @@ export function createIdentitySession({
    * cookie is present unless `force` is set (used right after login, when the
    * server has just set the cookie but the reactive read may not reflect it).
    */
-  async function fetchMe(force = false): Promise<ErrorResult<LoginErrorResults>> {
+  async function fetchMe(force = false): Promise<LoginErrorOnlyResult> {
     if (!force && !store.hasAccessToken.value) {
       return { success: false, error: LoginErrorResults.IsNotAuthorizedForUserData };
     }
@@ -58,7 +57,9 @@ export function createIdentitySession({
     const result = await fetchUser();
     if (!result.success) {
       logger.error("Identity self query failed", result.error);
-      return { success: false, error: result.error };
+      // The failure travels whole: re-boxing the code here would drop the detail beside
+      // it (a rate limit's `retryAfterSeconds`) on the floor.
+      return result;
     }
 
     store.setAuthenticated(result.value);
@@ -88,7 +89,7 @@ export function createIdentitySession({
 
   async function login(
     credentials: LoginCredentialsRequest,
-  ): Promise<Result<LoginOutcome, LoginErrorResults>> {
+  ): Promise<LoginResult<LoginOutcome>> {
     if (store.isAuthorized.value) {
       return { success: true, value: { status: "ALREADY_AUTHORIZED" } };
     }

@@ -1,5 +1,7 @@
-import { executeRequest, parseJsonResponse } from "../api/request";
+import { readRateLimitRejection } from "../api/rateLimit";
+import { executeRequest, isTimeoutError, parseJsonResponse } from "../api/request";
 import { ChallengeErrors } from "../errors/identityApiErrors";
+import type { ChallengeError } from "../errors/identityApiErrors";
 import type {
   ChallengeLoginOkResponse,
   ConsumeChallengeResult,
@@ -31,6 +33,38 @@ function makeChallengeEndpointUrls(baseUrl: string) {
 }
 
 /**
+ * What an unexpected status means for a challenge request.
+ *
+ * A backend typically puts its challenge endpoints on the same rate-limit partition as
+ * its login endpoint — an MFA login then spends two permits per attempt — so a 429 here
+ * says nothing about the challenge. Reading it as "expired" would send the user back to
+ * the password form to spend two more permits and be refused again. Same for a 5xx: the
+ * code was never judged. Anything else really is most likely an expired or unknown
+ * challenge.
+ */
+async function classifyUnexpectedStatus(response: Response): Promise<ChallengeError> {
+  if (response.status === HttpStatusCode.TooManyRequests) {
+    const rejection = await readRateLimitRejection(response);
+    return ChallengeErrors.rateLimited(rejection.scope, rejection.retryAfterSeconds);
+  }
+  if (response.status >= HttpStatusCode.InternalServerError) {
+    return ChallengeErrors.serverUnavailable();
+  }
+  return ChallengeErrors.challengeExpired();
+}
+
+/**
+ * What a request that never came back means. The same split the login leg makes: a
+ * timeout went out and was not answered, while an unreachable server is the one case
+ * where checking your own connection is the right advice.
+ */
+function classifyRequestFailure(error: unknown): ChallengeError {
+  return isTimeoutError(error)
+    ? ChallengeErrors.requestTimedOut()
+    : ChallengeErrors.networkError();
+}
+
+/**
  * The shipped REST implementation of {@link IdentityChallengeApi}, for backends that
  * follow the `/challenge/*` contract.
  */
@@ -51,7 +85,7 @@ export function makeIdentityChallengeApiClient(baseUrl: string, deps?: IdentityC
     }
     catch (error) {
       logger.error("Failed to send create step-up challenge request", error);
-      return { success: false, error: ChallengeErrors.networkError() };
+      return { success: false, error: classifyRequestFailure(error) };
     }
 
     switch (response.status) {
@@ -79,7 +113,7 @@ export function makeIdentityChallengeApiClient(baseUrl: string, deps?: IdentityC
 
       default:
         logger.warn(`Create step-up challenge failed with status ${response.status}`);
-        return { success: false, error: ChallengeErrors.challengeExpired() };
+        return { success: false, error: await classifyUnexpectedStatus(response) };
     }
   }
 
@@ -98,7 +132,7 @@ export function makeIdentityChallengeApiClient(baseUrl: string, deps?: IdentityC
     }
     catch (error) {
       logger.error("Failed to send validate challenge request", error);
-      return { success: false, error: ChallengeErrors.networkError() };
+      return { success: false, error: classifyRequestFailure(error) };
     }
 
     switch (response.status) {
@@ -123,7 +157,7 @@ export function makeIdentityChallengeApiClient(baseUrl: string, deps?: IdentityC
 
       default:
         logger.warn(`Validate challenge failed with status ${response.status}`, challengeId);
-        return { success: false, error: ChallengeErrors.challengeExpired() };
+        return { success: false, error: await classifyUnexpectedStatus(response) };
     }
   }
 
@@ -141,7 +175,7 @@ export function makeIdentityChallengeApiClient(baseUrl: string, deps?: IdentityC
     }
     catch (error) {
       logger.error("Failed to send consume challenge request", error);
-      return { success: false, error: ChallengeErrors.networkError() };
+      return { success: false, error: classifyRequestFailure(error) };
     }
 
     switch (response.status) {
@@ -167,7 +201,7 @@ export function makeIdentityChallengeApiClient(baseUrl: string, deps?: IdentityC
 
       default:
         logger.warn(`Consume challenge failed with status ${response.status}`, challengeId);
-        return { success: false, error: ChallengeErrors.challengeExpired() };
+        return { success: false, error: await classifyUnexpectedStatus(response) };
     }
   }
 
@@ -186,7 +220,7 @@ export function makeIdentityChallengeApiClient(baseUrl: string, deps?: IdentityC
     }
     catch (error) {
       logger.error("Failed to send validate-and-consume challenge request", error);
-      return { success: false, error: ChallengeErrors.networkError() };
+      return { success: false, error: classifyRequestFailure(error) };
     }
 
     switch (response.status) {
@@ -217,7 +251,7 @@ export function makeIdentityChallengeApiClient(baseUrl: string, deps?: IdentityC
 
       default:
         logger.warn(`Validate-and-consume challenge failed with status ${response.status}`, challengeId);
-        return { success: false, error: ChallengeErrors.challengeExpired() };
+        return { success: false, error: await classifyUnexpectedStatus(response) };
     }
   }
 

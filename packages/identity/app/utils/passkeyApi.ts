@@ -1,5 +1,7 @@
+import { RateLimitScopes, readRateLimitRejection } from "../api/rateLimit";
 import { executeRequest, parseJsonResponse } from "../api/request";
 import { PasskeyErrorResults } from "../errors/passkeyErrors";
+import type { PasskeyFailure, PasskeyResult } from "../errors/passkeyErrors";
 import type {
   IdentityPasskeyApi,
   PasskeyAssertionOptions,
@@ -7,7 +9,6 @@ import type {
   PasskeyRegistrationOptions,
   PasskeyRegistrationResponse,
 } from "../types/passkeyApi";
-import type { Result } from "#layers/director-common/app/types/result";
 
 import { HttpStatusCode } from "./httpStatusCodes";
 import { noopIdentityLogger } from "./logger";
@@ -34,6 +35,34 @@ function makePasskeyEndpointUrls(baseUrl: string) {
 }
 
 /**
+ * What a refusal that is not about the credential means.
+ *
+ * A passkey ceremony usually shares its backend's login rate-limit partition with the
+ * password endpoint, so a 429 says nothing whatsoever about the key — and `Rejected`,
+ * which is what every non-2xx used to become, reads as "your passkey was refused". That
+ * is how someone deletes a working credential over a limiter they tripped by clicking
+ * twice. A 5xx is the same story: nothing was judged.
+ */
+async function classifyRefusal(response: Response): Promise<PasskeyFailure> {
+  if (response.status === HttpStatusCode.TooManyRequests) {
+    const rejection = await readRateLimitRejection(response);
+    return {
+      success: false,
+      error: rejection.scope === RateLimitScopes.Global
+        ? PasskeyErrorResults.GloballyRateLimited
+        : PasskeyErrorResults.RateLimited,
+      retryAfterSeconds: rejection.retryAfterSeconds,
+    };
+  }
+
+  if (response.status >= HttpStatusCode.InternalServerError) {
+    return { success: false, error: PasskeyErrorResults.ServerUnavailable };
+  }
+
+  return { success: false, error: PasskeyErrorResults.Rejected };
+}
+
+/**
  * The shipped REST implementation of {@link IdentityPasskeyApi}.
  *
  * Note what is absent: there is no `sendLoginCompleteRequest`. Finishing a passkey login
@@ -56,7 +85,7 @@ export function makePasskeyApiClient(baseUrl: string, deps?: PasskeyApiClientDep
     url: string,
     body: unknown,
     parse: boolean,
-  ): Promise<Result<T, PasskeyErrorResults>> {
+  ): Promise<PasskeyResult<T>> {
     let response: Response;
 
     try {
@@ -75,7 +104,10 @@ export function makePasskeyApiClient(baseUrl: string, deps?: PasskeyApiClientDep
     }
 
     if (!response.ok) {
-      return { success: false, error: PasskeyErrorResults.Rejected };
+      const failure = await classifyRefusal(response);
+      logger.debug(`Passkey request to ${url} was refused with ${response.status}: ${failure.error}`);
+
+      return failure;
     }
 
     if (!parse) {

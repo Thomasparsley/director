@@ -110,6 +110,44 @@ describe("makePasskeyApiClient", () => {
   });
 
   /**
+   * Sign-in usually shares the backend's login rate-limit partition with the password
+   * endpoint, so a 429 says nothing about the credential. Reported as `Rejected` — which
+   * is what every non-2xx used to be — it reads as "your passkey was refused", and that is
+   * how someone deletes a working key over a limiter they tripped by clicking twice.
+   */
+  it("tells a rate limit apart from a refusal, and keeps the seconds it named", async () => {
+    const { api } = makeClient(jsonResponse({ scope: "login", retryAfterSeconds: 20 }, 429));
+
+    const result = await api.sendLoginOptionsRequest();
+
+    expect(result).toEqual({
+      success: false,
+      error: PasskeyErrorResults.RateLimited,
+      retryAfterSeconds: 20,
+    });
+  });
+
+  it("reports a globally rate-limited request as its own outcome", async () => {
+    const { api } = makeClient(jsonResponse({ scope: "global" }, 429));
+
+    const result = await api.sendLoginOptionsRequest();
+
+    expect(result).toEqual({
+      success: false,
+      error: PasskeyErrorResults.GloballyRateLimited,
+      retryAfterSeconds: undefined,
+    });
+  });
+
+  it("reports a 5xx as ServerUnavailable — nothing about the credential was judged", async () => {
+    const { api } = makeClient(new Response(null, { status: 500 }));
+
+    const result = await api.sendLoginOptionsRequest();
+
+    expect(result).toEqual({ success: false, error: PasskeyErrorResults.ServerUnavailable });
+  });
+
+  /**
    * A request that never left is not a refusal. Retrying is reasonable here and pointless
    * for a 400, which is why they are different values rather than one failure.
    */

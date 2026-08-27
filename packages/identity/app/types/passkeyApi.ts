@@ -1,6 +1,4 @@
-import type { Result } from "#layers/director-common/app/types/result";
-
-import type { PasskeyErrorResults } from "../errors/passkeyErrors";
+import type { PasskeyResult } from "../errors/passkeyErrors";
 
 /**
  * The two option payloads, as the server hands them over.
@@ -36,11 +34,11 @@ export interface PasskeyChallenge<TOptions> {
 export interface IdentityPasskeyApi {
   /** Asks the server for enrolment options. Requires an authenticated session. */
   sendRegisterOptionsRequest: () =>
-  Promise<Result<PasskeyChallenge<PasskeyRegistrationOptions>, PasskeyErrorResults>>
+  Promise<PasskeyResult<PasskeyChallenge<PasskeyRegistrationOptions>>>
 
   /** Hands back the signed attestation to be verified and stored. */
   sendRegisterCompleteRequest: (challengeId: string, response: PasskeyRegistrationResponse) =>
-  Promise<Result<void, PasskeyErrorResults>>
+  Promise<PasskeyResult<void>>
 
   /**
    * Asks for assertion options.
@@ -51,7 +49,7 @@ export interface IdentityPasskeyApi {
    * no username box at all.
    */
   sendLoginOptionsRequest: (username?: string) =>
-  Promise<Result<PasskeyChallenge<PasskeyAssertionOptions>, PasskeyErrorResults>>
+  Promise<PasskeyResult<PasskeyChallenge<PasskeyAssertionOptions>>>
 }
 
 /**
@@ -65,7 +63,7 @@ export interface IdentityPasskeyApi {
 export interface PasskeyCeremony {
   supportsPasskeys: () => boolean
   createPasskey: (options: PasskeyRegistrationOptions) =>
-  Promise<Result<PasskeyRegistrationResponse, PasskeyErrorResults>>
+  Promise<PasskeyResult<PasskeyRegistrationResponse>>
   getPasskeyAssertion: (options: PasskeyAssertionOptions) =>
-  Promise<Result<PasskeyAssertionResponse, PasskeyErrorResults>>
+  Promise<PasskeyResult<PasskeyAssertionResponse>>
 }

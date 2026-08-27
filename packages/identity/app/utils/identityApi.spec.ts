@@ -91,11 +91,71 @@ describe("makeIdentityApiClient sendLoginRequest", () => {
   });
 
   it("fails with FailedToLogin on an unexpected status", async () => {
-    const { api } = makeClient(new Response(null, { status: 500 }));
+    const { api } = makeClient(new Response(null, { status: 418 }));
 
     const result = await api.sendLoginRequest(credentials);
 
     expect(result).toEqual({ success: false, error: LoginErrorResults.FailedToLogin });
+  });
+
+  it("fails with TooManyAttempts when a login limiter refuses, carrying the seconds it named", async () => {
+    const { api } = makeClient(jsonResponse({ scope: "login", retryAfterSeconds: 34 }, 429));
+
+    const result = await api.sendLoginRequest(credentials);
+
+    expect(result).toEqual({
+      success: false,
+      error: LoginErrorResults.TooManyAttempts,
+      retryAfterSeconds: 34,
+    });
+  });
+
+  it("fails with TooManyRequests when the refusal came from the global limiter", async () => {
+    // Not the same sentence: the global budget can be spent by requests that were never
+    // logins, so this can refuse a first attempt.
+    const { api } = makeClient(jsonResponse({ scope: "global", retryAfterSeconds: 5 }, 429));
+
+    const result = await api.sendLoginRequest(credentials);
+
+    expect(result).toEqual({
+      success: false,
+      error: LoginErrorResults.TooManyRequests,
+      retryAfterSeconds: 5,
+    });
+  });
+
+  it("keeps the endpoint's own meaning for a 429 that says nothing", async () => {
+    // A proxy or an older backend answers in plain text; guessing "global" would be a
+    // lie in the other direction, so the login endpoint's own meaning stands.
+    const { api } = makeClient(new Response("Too Many Requests", { status: 429 }));
+
+    const result = await api.sendLoginRequest(credentials);
+
+    expect(result).toEqual({
+      success: false,
+      error: LoginErrorResults.TooManyAttempts,
+      retryAfterSeconds: undefined,
+    });
+  });
+
+  it("fails with ServerUnavailable on a 5xx, which never judged the credentials", async () => {
+    const { api } = makeClient(new Response(null, { status: 503 }));
+
+    const result = await api.sendLoginRequest(credentials);
+
+    expect(result).toEqual({ success: false, error: LoginErrorResults.ServerUnavailable });
+  });
+
+  it("fails with RequestTimedOut when the request went out and was not answered", async () => {
+    // `AbortSignal.timeout` rejects exactly like a refused connection does; reading the
+    // two the same way sends someone whose network is fine to go and check their network.
+    const timeout = new Error("timed out");
+    timeout.name = "TimeoutError";
+    const { api } = makeClient(timeout);
+
+    const result = await api.sendLoginRequest(credentials);
+
+    expect(result).toEqual({ success: false, error: LoginErrorResults.RequestTimedOut });
   });
 
   it("fails with FailedToSendLoginRequest when the fetcher rejects", async () => {

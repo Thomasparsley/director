@@ -1,6 +1,6 @@
 import type { Result } from "#layers/director-common/app/types/result";
 
-import type { LoginErrorResults, RefreshErrorResults } from "../errors/identityApiErrors";
+import type { LoginResult, RefreshErrorResults } from "../errors/identityApiErrors";
 import type {
   ConsumeChallengeResult,
   CreateStepUpChallengeResult,
@@ -28,7 +28,7 @@ export interface IdentityApi extends IdentityTokenApi {
    * token operations because it typically speaks the app's data transport, not the
    * identity REST endpoints.
    */
-  fetchUser: () => Promise<Result<IdentityUser, LoginErrorResults>>
+  fetchUser: () => Promise<LoginResult<IdentityUser>>
 }
 
 /** The token-lifecycle subset of {@link IdentityApi}, as implemented by `makeIdentityApiClient`. */

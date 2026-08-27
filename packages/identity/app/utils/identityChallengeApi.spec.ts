@@ -68,7 +68,7 @@ describe("makeIdentityChallengeApiClient sendCreateStepUpChallengeRequest", () =
   });
 
   it("fails with ChallengeExpired on any other status", async () => {
-    const { api } = makeClient(new Response(null, { status: 500 }));
+    const { api } = makeClient(new Response(null, { status: 404 }));
 
     const result = await api.sendCreateStepUpChallengeRequest("change-password");
 
@@ -206,7 +206,7 @@ describe("makeIdentityChallengeApiClient sendConsumeChallengeRequest", () => {
   });
 
   it("fails with ChallengeExpired on any other status", async () => {
-    const { api } = makeClient(new Response(null, { status: 500 }));
+    const { api } = makeClient(new Response(null, { status: 404 }));
 
     const result = await api.sendConsumeChallengeRequest(challengeId);
 
@@ -275,7 +275,7 @@ describe("makeIdentityChallengeApiClient sendValidateAndConsumeChallengeRequest"
   });
 
   it("fails with ChallengeExpired on any other status", async () => {
-    const { api } = makeClient(new Response(null, { status: 500 }));
+    const { api } = makeClient(new Response(null, { status: 404 }));
 
     const result = await api.sendValidateAndConsumeChallengeRequest(challengeId, code);
 
@@ -288,5 +288,44 @@ describe("makeIdentityChallengeApiClient sendValidateAndConsumeChallengeRequest"
     const result = await api.sendValidateAndConsumeChallengeRequest(challengeId, code);
 
     expect(result).toEqual({ success: false, error: ChallengeErrors.networkError() });
+  });
+});
+
+describe("makeIdentityChallengeApiClient transport refusals", () => {
+  // These four endpoints typically share a rate-limit partition with the login endpoint,
+  // so a 429 says nothing about the challenge — and "your session expired" would send the
+  // user back to the password form to spend more of the budget that just ran out.
+  it("reports a 429 as RateLimited, with the scope and seconds the limiter named", async () => {
+    const { api } = makeClient(jsonResponse({ scope: "login", retryAfterSeconds: 34 }, 429));
+
+    const result = await api.sendValidateAndConsumeChallengeRequest(challengeId, code);
+
+    expect(result).toEqual({ success: false, error: ChallengeErrors.rateLimited("login", 34) });
+  });
+
+  it("reports a 429 with no readable body as RateLimited without detail", async () => {
+    const { api } = makeClient(new Response("Too Many Requests", { status: 429 }));
+
+    const result = await api.sendValidateChallengeRequest(challengeId, code);
+
+    expect(result).toEqual({ success: false, error: ChallengeErrors.rateLimited(undefined, undefined) });
+  });
+
+  it("reports a 5xx as ServerUnavailable — the code was never judged", async () => {
+    const { api } = makeClient(new Response(null, { status: 502 }));
+
+    const result = await api.sendConsumeChallengeRequest(challengeId);
+
+    expect(result).toEqual({ success: false, error: ChallengeErrors.serverUnavailable() });
+  });
+
+  it("tells a timed-out request apart from one that never opened", async () => {
+    const timeout = new Error("timed out");
+    timeout.name = "TimeoutError";
+    const { api } = makeClient(timeout);
+
+    const result = await api.sendCreateStepUpChallengeRequest("change-password");
+
+    expect(result).toEqual({ success: false, error: ChallengeErrors.requestTimedOut() });
   });
 });

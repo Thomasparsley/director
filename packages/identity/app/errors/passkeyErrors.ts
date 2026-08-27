@@ -30,6 +30,36 @@ export const PasskeyErrorResults = {
 
   /** `identity.passkeyApi` was never configured, so there is nothing to call. */
   NotConfigured: "NotConfigured",
+
+  /**
+   * A login limiter refused; the credential itself was never judged.
+   *
+   * Its own code rather than `Rejected`, because "your passkey was refused" is how a
+   * person ends up deleting a perfectly good credential over a limiter they tripped by
+   * clicking twice. Passkey sign-in typically shares its backend's login rate-limit
+   * partition with the password endpoint, so this says nothing whatsoever about the key.
+   */
+  RateLimited: "RateLimited",
+
+  /** A limiter that counts every request refused — need not be about signing in at all. */
+  GloballyRateLimited: "GloballyRateLimited",
+
+  /** The backend broke. Same story as `RateLimited`: nothing about the credential. */
+  ServerUnavailable: "ServerUnavailable",
 } as const;
 
 export type PasskeyErrorResults = typeof PasskeyErrorResults[keyof typeof PasskeyErrorResults];
+
+/**
+ * The failed arm of a passkey result. Like `LoginFailure`, it is the plain
+ * `{ success: false, error }` pair widened with the seconds a rate-limit window has
+ * left — so nothing that only reads `result.error` has to change.
+ */
+export type PasskeyFailure = {
+  readonly success: false
+  readonly error: PasskeyErrorResults
+  /** Seconds until the limiter's window resets, when the server said. */
+  readonly retryAfterSeconds?: number
+};
+
+export type PasskeyResult<T> = { readonly success: true, readonly value: T } | PasskeyFailure;

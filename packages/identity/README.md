@@ -172,6 +172,55 @@ refuses the exchange ends the session — with `wake-recovery-failed` rather tha
 `wake-expired`, so an app can tell the two apart. A network failure ends nothing: the
 session is left as it is and the next wake event tries again.
 
+### Why a login failed
+
+Every login-family call resolves to a `LoginResult`, whose failed arm is a
+`LoginFailure`: the `LoginErrorResults` code, plus whatever detail the server sent
+beside it.
+
+```ts
+const result = await identity.login(credentials);
+if (!result.success) {
+  switch (result.error) {
+    case LoginErrorResults.InvalidCredentials: return t("wrongPassword");
+    // Two different limiters, two different sentences — the second can refuse a *first*
+    // attempt, so "too many login attempts" would be the wrong thing to say.
+    case LoginErrorResults.TooManyAttempts: return retryIn(result.retryAfterSeconds);
+    case LoginErrorResults.TooManyRequests: return busyRetryIn(result.retryAfterSeconds);
+    case LoginErrorResults.ServerUnavailable: return t("comeBackLater");
+    case LoginErrorResults.RequestTimedOut: return t("noAnswer");
+    default: return t("loginFailed");
+  }
+}
+```
+
+The codes that keep the situations apart, and what each one means for the person in
+front of the form:
+
+| Code | What actually happened |
+| --- | --- |
+| `TooManyAttempts` | A login limiter refused. Nothing was judged; waiting helps |
+| `TooManyRequests` | A limiter counting *every* request refused — need not be about logging in at all |
+| `ServerUnavailable` | 5xx: the backend or its proxy broke, and the credentials were never read |
+| `RequestTimedOut` | The request went out and no answer came back |
+| `FailedToSendLoginRequest` | The request never opened — the one case where "check your connection" is right |
+
+`retryAfterSeconds` is set when the server named a number: either a JSON 429 body
+(`{ scope, retryAfterSeconds }`, the shipped contract's shape, where `scope` is `login`,
+`token-refresh` or `global`) or a standard `Retry-After` header, seconds or HTTP-date.
+It is absent whenever a proxy, a CDN or an older backend answered instead — so every
+message has to read correctly without it.
+
+`InvalidMfaCode` carries `remainingAttempts` the same way, when the challenge response
+reported one, so a dialog can count down instead of letting someone find the limit by
+hitting it.
+
+The challenge legs distinguish transport from challenge for the same reason. Backends
+commonly put `/challenge/*` on the login endpoint's rate-limit partition — an MFA login
+then spends two permits per attempt — so a 429 there is reported as `TooManyAttempts`,
+not as `ChallengeExpired`: the latter would send the user back to the password form to
+spend two more permits and be refused again.
+
 ### Route guards
 
 The layer ships no middleware (redirect targets are app policy). Write yours against
@@ -317,6 +366,15 @@ sessions its own way is how two subtly different ways in appear.
 Every failure is a `PasskeyErrorResults` value, and one of them is not a failure:
 `Cancelled` means the person dismissed the browser's prompt. Reporting that as an error is
 the first thing every WebAuthn front end gets wrong.
+
+Three of the others are not about the credential either. Passkey sign-in usually shares
+its backend's login rate-limit partition with the password endpoint, so `RateLimited`,
+`GloballyRateLimited` (both carrying `retryAfterSeconds` when the server named one) and
+`ServerUnavailable` are reported separately from `Rejected` — telling someone their
+passkey was refused is how a working credential gets deleted over a limiter they tripped
+by clicking twice. They are the same two limiters as `TooManyAttempts` and
+`TooManyRequests` above, under names that also fit enrolment, which this enum covers and
+`LoginErrorResults` does not.
 
 The server half is `Director.Identity.WebAuthn`, whose three routes this client calls.
 

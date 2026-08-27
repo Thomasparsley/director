@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { executeRequest, parseJsonResponse } from "./request";
+import { executeRequest, isTimeoutError, parseJsonResponse } from "./request";
 
 describe("executeRequest", () => {
   let fetchMock: ReturnType<typeof vi.fn>;
@@ -63,5 +63,26 @@ describe("parseJsonResponse", () => {
   it("returns null on invalid JSON instead of throwing", async () => {
     const res = new Response("not json", { status: 200 });
     expect(await parseJsonResponse(res)).toBeNull();
+  });
+});
+
+describe("isTimeoutError", () => {
+  it("recognises the DOMException AbortSignal.timeout rejects with", () => {
+    expect(isTimeoutError(new DOMException("timed out", "TimeoutError"))).toBe(true);
+  });
+
+  it("recognises a caller-owned abort, which also means no answer came back", () => {
+    expect(isTimeoutError(new DOMException("aborted", "AbortError"))).toBe(true);
+  });
+
+  it("does not claim a connection that never opened timed out", () => {
+    // The distinction is the whole point: only this one is a reason to tell someone to
+    // go and look at their own connection.
+    expect(isTimeoutError(new TypeError("Failed to fetch"))).toBe(false);
+  });
+
+  it("survives a rejection that is not an object at all", () => {
+    expect(isTimeoutError(null)).toBe(false);
+    expect(isTimeoutError("TimeoutError")).toBe(false);
   });
 });

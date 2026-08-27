@@ -1,4 +1,5 @@
-import { executeRequest, parseJsonResponse } from "../api/request";
+import { RateLimitScopes, readRateLimitRejection } from "../api/rateLimit";
+import { executeRequest, isTimeoutError, parseJsonResponse } from "../api/request";
 import { LoginErrorResults, RefreshErrorResults } from "../errors/identityApiErrors";
 import type {
   LoginCredentialsRequest,
@@ -53,6 +54,13 @@ export function makeIdentityApiClient(baseUrl: string, deps?: IdentityApiClientD
       });
     }
     catch (error) {
+      // A timeout is not the same failure as an unreachable server: the request did go
+      // out, so telling the user it could not be sent points them at a connection that
+      // is working. Keep the two apart all the way to whatever the app says.
+      if (isTimeoutError(error)) {
+        logger.error(`Login request to ${urls.login} timed out`, error);
+        return { success: false, error: LoginErrorResults.RequestTimedOut };
+      }
       logger.error(`Failed to send login request to ${urls.login}`, error);
       return { success: false, error: LoginErrorResults.FailedToSendLoginRequest };
     }
@@ -96,7 +104,30 @@ export function makeIdentityApiClient(baseUrl: string, deps?: IdentityApiClientD
         logger.warn("Login rejected: invalid request");
         return { success: false, error: LoginErrorResults.InvalidCredentials };
 
+      // The body says which limiter refused and how long its window has left; when it
+      // says neither — an older backend, or a proxy answering for it — the endpoint's
+      // own meaning stands, because guessing "global" would be a lie in the other
+      // direction.
+      case HttpStatusCode.TooManyRequests: {
+        const rejection = await readRateLimitRejection(response);
+        logger.warn(`Login rejected: rate limited (scope: ${rejection.scope ?? "unknown"})`);
+        return {
+          success: false,
+          error: rejection.scope === RateLimitScopes.Global
+            ? LoginErrorResults.TooManyRequests
+            : LoginErrorResults.TooManyAttempts,
+          retryAfterSeconds: rejection.retryAfterSeconds,
+        };
+      }
+
       default:
+        if (response.status >= HttpStatusCode.InternalServerError) {
+          // The credentials were never judged — the backend (or the proxy in front of
+          // it) broke. "Try again in a moment" is the right advice, so it must not read
+          // like the generic "login failed".
+          logger.error(`Login failed: server error ${response.status}`, response);
+          return { success: false, error: LoginErrorResults.ServerUnavailable };
+        }
         logger.error(`Login failed with unexpected status ${response.status}`, response);
         return { success: false, error: LoginErrorResults.FailedToLogin };
     }

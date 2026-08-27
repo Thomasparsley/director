@@ -1,6 +1,6 @@
 import type { Result } from "#layers/director-common/app/types/result";
 
-import type { ChallengeError, LoginErrorResults } from "../errors/identityApiErrors";
+import type { ChallengeError, LoginResult } from "../errors/identityApiErrors";
 
 // Login with credentials (an MFA code is never submitted here — it goes through the
 // challenge flow instead).
@@ -22,7 +22,11 @@ export type LoginMfaRequiredResponse = {
   challengeId: string
 };
 
-export type LoginResponseResult = Result<LoginOkResponse | LoginMfaRequiredResponse, LoginErrorResults>;
+/**
+ * The failed arm carries the optional detail (`retryAfterSeconds`) alongside the code —
+ * see `LoginFailure` in `errors/identityApiErrors.ts`.
+ */
+export type LoginResponseResult = LoginResult<LoginOkResponse | LoginMfaRequiredResponse>;
 
 export interface RefreshTokenResponse {
   readonly refreshAfter: string

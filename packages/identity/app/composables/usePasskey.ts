@@ -1,6 +1,5 @@
-import type { Result } from "#layers/director-common/app/types/result";
-
 import { PasskeyErrorResults } from "../errors/passkeyErrors";
+import type { PasskeyResult } from "../errors/passkeyErrors";
 import type { PasskeyAssertionResponse } from "../types/passkeyApi";
 
 import { useSessionStore } from "../session/store";
@@ -38,7 +37,7 @@ export function usePasskey() {
   }
 
   /** Enrols a new passkey for the signed-in user. */
-  async function enrol(): Promise<Result<void, PasskeyErrorResults>> {
+  async function enrol(): Promise<PasskeyResult<void>> {
     if (!runtime.hasPasskeys) {
       return { success: false, error: PasskeyErrorResults.NotConfigured };
     }
@@ -66,7 +65,7 @@ export function usePasskey() {
    *
    * @param username Omit for a discoverable login — no username box, the authenticator picks.
    */
-  async function authenticate(username?: string): Promise<Result<PasskeyAssertion, PasskeyErrorResults>> {
+  async function authenticate(username?: string): Promise<PasskeyResult<PasskeyAssertion>> {
     if (!runtime.hasPasskeys) {
       return { success: false, error: PasskeyErrorResults.NotConfigured };
     }
