@@ -127,14 +127,20 @@ export {};
 The plugin creates one identity instance per app and provides it; read it anywhere
 with the auto-imported `useIdentity()`:
 
+The instance answers three questions, and groups its members by which one — `viewer`
+(who is asking), `permissions` (what they may do) and `session` (how that answer is
+reached and kept) — plus `login`/`logout`, which sit flat because they are the verbs a
+person performs rather than things that happen to them.
+
 ```vue
 <script setup lang="ts">
 const identity = useIdentity();
 
-// Reactive session state
-identity.sessionStatus; // "unknown" | "anonymous" | "authenticating" | "authenticated" | "expired"
-identity.isAuthorized;  // ComputedRef<boolean>
-identity.user;          // ComputedRef<IdentityUser | undefined>
+// Destructure OUT of a group. In a component you must: Vue unwraps only top-level
+// refs from `<script setup>`, so a `viewer.isAuthorized` reaching the template would
+// render the ref object rather than the boolean.
+const { user, isAuthorized, isSessionSettled } = identity.viewer;
+const { hasPermission } = identity.permissions;
 
 // Log in / out
 const result = await identity.login(buildLoginCredentials(usernameOrEmail, password));
@@ -149,15 +155,22 @@ What the instance gives you:
 
 | Member | What it does |
 | --- | --- |
-| `sessionStatus`, `isAuthorized`, `user` | Reactive views over the session store |
+| `viewer.user`, `viewer.isAuthorized` | Reactive views over the session store |
+| `viewer.isSessionSettled` | `false` while the session is still `unknown` — see [Three states, not two](#three-states-not-two) |
+| `permissions.hasPermission(arg)`, `permissions.useHasPermission(arg)`, `permissions.hasFullAccess` | Permission checks (see below) |
 | `login(credentials)` | Login flow; resolves `OK`, `ALREADY_AUTHORIZED` or `MFA_REQUIRED` |
 | `logout()` | Logs out server-side and clears local state unconditionally |
-| `whenSettled()` | Resolves once the session is no longer `unknown` — await this in route guards |
-| `bootstrap()` | Resolves the initial session (single-flight; the plugin already calls it) |
-| `fetchMe()` / `refetchMe()` | (Re)load the current user into the store |
-| `hasUserPermission(arg)`, `useHasUserPermission(arg)`, `hasUserFullAccess` | Permission checks (see below) |
-| `recoverAuth()` | Wire into your data layer's auth-error hook (401 interceptor, GraphQL auth exchange) |
-| `_keepAlive` | Low-level seam behind `useIdentityKeepAlive()` (see below); not part of the public API |
+| `session.status`, `session.expiredReason`, `session.isSettled` | The state machine's own view |
+| `session.whenSettled()` | Resolves once the session is no longer `unknown` — await this in route guards |
+| `session.bootstrap()` | Resolves the initial session (single-flight; the plugin already calls it) |
+| `session.fetchMe()` / `session.refetchMe()` | (Re)load the current user into the store |
+| `session.recoverAuth()` | Wire into your data layer's auth-error hook (401 interceptor, GraphQL auth exchange) |
+| `session._keepAlive` | Low-level seam behind `useIdentityKeepAlive()` (see below); not part of the public API |
+
+Compare `SessionStatuses.Authenticated` and friends rather than the bare strings —
+`session/types.ts` exports a const object per state field (`SessionStatuses`,
+`SessionExpiredReasons`, `SessionRecoveryOutcomes`), so a typo is a compile error
+instead of a comparison that is quietly always false.
 
 Session bootstrap is automatic: on the server the plugin settles the session from the
 incoming marker cookies before rendering; on the client it recovers "browser
@@ -171,6 +184,49 @@ resync trades the refresh cookie for a new access token first, and only a backen
 refuses the exchange ends the session — with `wake-recovery-failed` rather than
 `wake-expired`, so an app can tell the two apart. A network failure ends nothing: the
 session is left as it is and the next wake event tries again.
+
+### Three states, not two
+
+`isAuthorized` answers "is this a logged-in user?", and answers `false` for BOTH "no"
+and "not known yet". Chrome that renders a logged-out state must not take that `false`
+at face value.
+
+An access token typically dies in minutes while the refresh cookie lives for days, so
+the ordinary returning visitor arrives carrying the refresh marker alone. The server
+deliberately will not spend it — the exchange rotates the token, and only the browser
+owns the cookie jar the successor must land in — so the page is server-rendered with
+the session still `unknown`. A header that trusted `isAuthorized` there paints "Sign
+in" at someone who was logged in the whole time, then swaps in their avatar once
+hydration corrects it.
+
+Branch on `viewer.isSessionSettled` and hold a neutral placeholder in the avatar's own
+footprint while the session is undecided: nothing is claimed, and nothing reflows when
+the answer lands.
+
+```vue
+<template>
+  <span v-if="!isSessionSettled" class="avatar-placeholder" />
+  <UserMenu v-else-if="isAuthorized" :user="user" />
+  <SignInLink v-else />
+</template>
+```
+
+### Answer versus silence
+
+Your `fetchUser` reports failure as a `LoginResult`, and **the code you choose decides
+what the server is allowed to conclude**:
+
+- `IsNotAuthorizedForUserData` (and `InvalidCredentials`) mean the API *answered*, and
+  the answer is "this request identifies nobody". That settles the session `anonymous`
+  — during SSR too, because it is a verdict.
+- **Every other code** means no answer arrived: the backend was unreachable, the
+  request timed out, the body would not parse. Nothing was learned, so SSR leaves the
+  session `unknown` and the browser asks again after hydration.
+
+Collapsing the two is what makes a stale token and an unreachable backend
+indistinguishable — one settles a logged-out shell over a live session, the other
+leaves the placeholder up for ever. If your "me" call cannot answer at all in a given
+context, say `ServerUnavailable`; save `IsNotAuthorizedForUserData` for a real refusal.
 
 ### Why a login failed
 
@@ -230,8 +286,8 @@ The layer ships no middleware (redirect targets are app policy). Write yours aga
 // app/middleware/authenticated.ts
 export default defineNuxtRouteMiddleware(async () => {
   const identity = useIdentity();
-  await identity.whenSettled();
-  if (!identity.isAuthorized.value) {
+  await identity.session.whenSettled();
+  if (!identity.viewer.isAuthorized.value) {
     return navigateTo("/login");
   }
 });
@@ -245,10 +301,12 @@ strings at the layer boundary — wrap with your own literal-union type if you w
 stricter checking.
 
 ```ts
-identity.hasUserPermission({ permission: "EVENT_OWNER" });
-identity.hasUserPermission({ permissions: ["EVENT_OWNER", "LEAGUE_OWNER"] }); // any-of
-identity.hasUserPermission({ permission: "EVENT_OWNER", collection: scopedCollection }); // walks inheritsFrom
-const canEdit = identity.useHasUserPermission({ permission: "EVENT_OWNER" }); // ComputedRef
+const { hasPermission, useHasPermission } = identity.permissions;
+
+hasPermission({ permission: "EVENT_OWNER" });
+hasPermission({ permissions: ["EVENT_OWNER", "LEAGUE_OWNER"] }); // any-of
+hasPermission({ permission: "EVENT_OWNER", collection: scopedCollection }); // walks inheritsFrom
+const canEdit = useHasPermission({ permission: "EVENT_OWNER" }); // ComputedRef
 ```
 
 For the coarser "may this reader be here at all?" question — a screen shell deciding
@@ -308,11 +366,13 @@ to a deadline already clamped inside the real token expiry
 (`timing.keepAliveCountdownMs`, `timing.keepAliveSafetyMarginMs`). Confirming renews;
 letting it lapse **revokes the session server-side** and settles it as `expired`,
 keeping the user for a re-login prefill. Show your re-login UI off
-`sessionStatus === "expired"`.
+`session.status === SessionStatuses.Expired`, and `session.expiredReason` says which
+of the five endings it was.
 
 Until something registers, idle never blocks renewal and an expired session simply
-logs out locally. (`useIdentityKeepAlive` is the supported wiring; `identity._keepAlive`
-is the low-level seam underneath it, if you need to compose the controller yourself.)
+logs out locally. (`useIdentityKeepAlive` is the supported wiring;
+`identity.session._keepAlive` is the low-level seam underneath it, if you need to
+compose the controller yourself.)
 
 ## Passkeys (optional)
 

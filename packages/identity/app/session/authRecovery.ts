@@ -1,3 +1,4 @@
+import { SessionStatuses } from "./types";
 import type { SessionStatus } from "./types";
 
 export interface AuthRecoveryDeps {
@@ -29,7 +30,7 @@ export function createAuthRecovery(deps: AuthRecoveryDeps) {
     if (recovering) {
       return recovering;
     }
-    if (deps.getStatus() !== "authenticated") {
+    if (deps.getStatus() !== SessionStatuses.Authenticated) {
       return Promise.resolve();
     }
     recovering = (async () => {

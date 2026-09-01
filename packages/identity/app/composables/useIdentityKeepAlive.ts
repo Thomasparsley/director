@@ -47,7 +47,7 @@ export function useIdentityKeepAlive(options: UseIdentityKeepAliveOptions) {
 
   const runtime = useIdentityRuntime();
   const identity = useIdentity();
-  const keepAlive = identity._keepAlive;
+  const keepAlive = identity.session._keepAlive;
   const { isIdle } = useIdentityActivity();
 
   const controller = createKeepAliveController({
@@ -80,7 +80,7 @@ export function useIdentityKeepAlive(options: UseIdentityKeepAliveOptions) {
   // rejected refresh. Tear the dialog down rather than leaving it counting toward an
   // expiry for a session that is already gone. (An expiry the controller drove itself
   // has closed the dialog before it gets here, so this is a no-op for that path.)
-  watch(identity.isAuthorized, (authorized) => {
+  watch(identity.viewer.isAuthorized, (authorized) => {
     if (!authorized) {
       controller.cancel();
     }

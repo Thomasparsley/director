@@ -44,3 +44,39 @@ test("wrong credentials surface an error and stay anonymous", async ({ page }) =
   await expect(page.getByRole("alert")).toContainText("Login failed");
   await expect(page.getByText("Session status:")).toContainText("anonymous");
 });
+
+// The returning visitor. SSR cannot resolve this session (the mock backend lives in
+// the browser), so the server renders with the session still `unknown` — and
+// `isAuthorized` is `false` for "not known yet" exactly as it is for "no". A page that
+// reads that as "logged out" ships a sign-in form to someone who never lost their
+// login, then swaps it for their name once the client settles.
+//
+// The assertion runs over the DOM as it arrives rather than after it: a Playwright
+// expectation only runs once hydration has already corrected whatever the server got
+// wrong, so a MutationObserver installed before the first script is what makes "never
+// flashed" assertable instead of inferred.
+test("a returning visitor is never offered the login they never lost", async ({ page }) => {
+  await page.goto("/identity");
+  await page.getByLabel("Username").fill("demo");
+  await page.getByLabel("Password").fill("demo");
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await expect(page.getByText("Signed in as")).toContainText("Demo User");
+
+  await page.addInitScript(() => {
+    const sawLoginForm = () => document.querySelector("input[name='username']") !== null;
+    Object.defineProperty(window, "__sawLoginForm", { value: sawLoginForm(), writable: true });
+    new MutationObserver(() => {
+      if (sawLoginForm()) {
+        (window as unknown as { __sawLoginForm: boolean }).__sawLoginForm = true;
+      }
+    // `document`, not `documentElement`: at init-script time the root element does
+    // not exist yet, and observing it would throw before the first byte is parsed.
+    }).observe(document, { childList: true, subtree: true });
+  });
+
+  await page.reload();
+  await expect(page.getByText("Signed in as")).toContainText("Demo User");
+
+  const flashed = await page.evaluate(() => (window as unknown as { __sawLoginForm: boolean }).__sawLoginForm);
+  expect(flashed).toBe(false);
+});

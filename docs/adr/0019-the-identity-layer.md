@@ -59,7 +59,7 @@ configured in `app.config`.**
   in `extends` must never crash an app that hasn't configured it yet.
 - **Like dialogs (ADR-0017), the layer holds state and ships no paint.** The
   keep-alive/re-login dialogs, login forms and route middlewares stay in the app;
-  the `_keepAlive` seam on the identity instance is where an app-mounted component
+  the `session._keepAlive` seam on the identity instance is where an app-mounted component
   takes over idle-gating and expiry prompts. Left behind on purpose: components,
   middlewares, forms, dialogs, validators, tester tools, the GraphQL `me` wiring,
   i18n error mapping, the permission catalog, and (for now) the passkey/WebAuthn
@@ -79,12 +79,19 @@ specs driving login/reload/logout through it.
 - `identity.api` is mandatory configuration. The plugin no-ops without it, so adding
   the layer is safe but inert until the app commits to a backend.
 - Permission checks are stringly-typed at the layer boundary (`IdentityPermission =
-  string`); an app that wants literal-union safety wraps `hasUserPermission` with its
+  string`); an app that wants literal-union safety wraps `permissions.hasPermission` with its
   own narrower type. The old GraphQL-derived union could not survive the port.
 - The keep-alive and re-login UX is consumer work by design: the controller is here
-  and unit-tested, and `useIdentityKeepAlive()` wires it to the `_keepAlive` seam from
+  and unit-tested, and `useIdentityKeepAlive()` wires it to the `session._keepAlive` seam from
   an app-mounted component that supplies the dialog paint. Until an app calls it, idle
   never blocks renewal and an expired session simply logs out.
+- An app's `fetchUser` carries one more obligation than "return a Result": its error
+  code tells the layer whether the API *answered*. `IsNotAuthorizedForUserData` is a
+  refusal and settles the session anonymous even during SSR; every other code is read as
+  "no answer arrived", which leaves the session `unknown` for the browser to retry. An
+  implementation that reports a refusal where it merely could not ask server-renders a
+  sign-in form at every signed-in visitor — the playground's in-browser mock had exactly
+  that bug, and now answers `ServerUnavailable` on the server.
 - An idle keep-alive lapse revokes the session server-side before dropping the local
   tokens. It is the one expiry reason whose session is still alive at the backend, so
   without the revoke the timeout would be cosmetic (the httpOnly tokens stay valid in

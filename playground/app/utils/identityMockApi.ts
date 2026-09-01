@@ -82,6 +82,17 @@ export function makeIdentityMockApi(): IdentityApi {
 
     fetchUser: async () => {
       await simulateLatency();
+
+      // This backend lives in the browser, so on the server it cannot answer at all —
+      // and saying so matters. The layer reads `IsNotAuthorizedForUserData` as the API
+      // *answering* "this identifies nobody", which settles the session anonymous even
+      // during SSR; returning it here would server-render a sign-in form at every
+      // signed-in visitor. `ServerUnavailable` is the honest code: nothing was learned,
+      // the session stays `unknown`, and the client asks again after hydration.
+      if (import.meta.server) {
+        return { success: false, error: LoginErrorResults.ServerUnavailable };
+      }
+
       if (!hasSession()) {
         return { success: false, error: LoginErrorResults.IsNotAuthorizedForUserData };
       }

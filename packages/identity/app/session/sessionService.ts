@@ -1,12 +1,15 @@
 import { LoginErrorResults, RefreshErrorResults } from "../errors/identityApiErrors";
 import type { LoginErrorOnlyResult, LoginResult } from "../errors/identityApiErrors";
+import { TokenRefreshFailedError } from "../errors/identityError";
 import type { LoginCredentialsRequest } from "../types/api";
 import type { IdentityTokenApi } from "../types/identityApi";
 import type { IdentityUser } from "../types/user";
 import { noopIdentityLogger } from "../utils/logger";
 
+import { classifyFetchUser } from "./fetchUserOutcome";
 import type { useSessionStore } from "./store";
-import type { SessionLogger, SessionRecoveryOutcome } from "./types";
+import { FetchUserOutcomes, SessionExpiredReasons, SessionRecoveryOutcomes, SessionStatuses } from "./types";
+import type { FetchUserOutcome, SessionLogger, SessionRecoveryOutcome } from "./types";
 
 export type LoginOutcome
   = | { readonly status: "OK" }
@@ -20,6 +23,10 @@ export interface SessionServiceDeps {
    * Fetches the currently-authenticated user (the `me` call). Injected so the
    * service stays free of any data-fetching internals and can be unit-tested
    * with a plain fake.
+   *
+   * Its failure code decides more than the message an app shows: see
+   * `classifyFetchUser`, which reads `IsNotAuthorizedForUserData` as the API
+   * answering "nobody" and anything else as no answer at all.
    */
   fetchUser: () => Promise<LoginResult<IdentityUser>>
   logger?: SessionLogger
@@ -45,6 +52,24 @@ export function createIdentitySession({
   canRecoverByDefault = () => true,
 }: SessionServiceDeps) {
   /**
+   * Runs the "me" call and applies a success to the store, handing back the classified
+   * outcome so a caller that cares *why* it failed — the bootstrap does; nobody else —
+   * can still see it.
+   */
+  async function loadUser(): Promise<FetchUserOutcome> {
+    const outcome = classifyFetchUser(await fetchUser());
+
+    if (outcome.status === FetchUserOutcomes.Ok) {
+      store.setAuthenticated(outcome.user);
+      logger.log("Authenticated user:", outcome.user);
+      return outcome;
+    }
+
+    logger.error("Identity self query failed", outcome.error, `(${outcome.status})`);
+    return outcome;
+  }
+
+  /**
    * Loads the current user into the store. Skips the network when no token
    * cookie is present unless `force` is set (used right after login, when the
    * server has just set the cookie but the reactive read may not reflect it).
@@ -54,16 +79,15 @@ export function createIdentitySession({
       return { success: false, error: LoginErrorResults.IsNotAuthorizedForUserData };
     }
 
-    const result = await fetchUser();
-    if (!result.success) {
-      logger.error("Identity self query failed", result.error);
+    const outcome = await loadUser();
+    if (outcome.status !== FetchUserOutcomes.Ok) {
       // The failure travels whole: re-boxing the code here would drop the detail beside
-      // it (a rate limit's `retryAfterSeconds`) on the floor.
-      return result;
+      // it (a rate limit's `retryAfterSeconds`) on the floor. Only the classification is
+      // stripped — every caller but the bootstrap wanted the code, not the taxonomy.
+      const { status: _status, ...failure } = outcome;
+      return failure;
     }
 
-    store.setAuthenticated(result.value);
-    logger.log("Authenticated user:", result.value);
     return { success: true };
   }
 
@@ -81,7 +105,7 @@ export function createIdentitySession({
   function captureFailureSettler(): () => void {
     const previousStatus = store.status.value;
     const previousReason = store.expiredReason.value;
-    if (previousStatus === "expired" && previousReason) {
+    if (previousStatus === SessionStatuses.Expired && previousReason) {
       return () => store.setExpired(previousReason);
     }
     return () => store.setAnonymous();
@@ -145,13 +169,13 @@ export function createIdentitySession({
         // observes the cleared token and surfaces the re-login dialog.
         logger.warn("Access token refresh rejected as unauthorized, session expired");
         store.clearToken();
-        store.setExpired("refresh-rejected");
+        store.setExpired(SessionExpiredReasons.RefreshRejected);
         return;
       }
 
       logger.error("Failed to refresh access token", result.error);
       // Transient failure — throw so the refresh loop's retry/backoff engages.
-      throw new Error(`Failed to refresh access token (error ${result.error})`);
+      throw new TokenRefreshFailedError(result.error);
     }
 
     store.applyExpiry(result.value.refreshAfter);
@@ -223,14 +247,14 @@ export function createIdentitySession({
     if (!result.success) {
       if (result.error === RefreshErrorResults.Unauthorized) {
         logger.log("Session recovery from the refresh token was rejected");
-        return "rejected";
+        return SessionRecoveryOutcomes.Rejected;
       }
       logger.warn("Could not reach the server to recover the session", result.error);
-      return "unreachable";
+      return SessionRecoveryOutcomes.Unreachable;
     }
 
     store.applyExpiry(result.value.refreshAfter);
-    return "recovered";
+    return SessionRecoveryOutcomes.Recovered;
   }
 
   async function runBootstrap(
@@ -247,7 +271,7 @@ export function createIdentitySession({
       }
 
       const recovery = await recoverFromRefreshToken();
-      if (recovery === "unreachable") {
+      if (recovery === SessionRecoveryOutcomes.Unreachable) {
         // The same safety net the SSR path gets: the refresh cookie is still there and
         // the session may well be alive — we just could not ask. Leave the session
         // `unknown` and let the next bootstrap() try again, rather than painting a
@@ -255,20 +279,30 @@ export function createIdentitySession({
         allowBootstrapRetry();
         return;
       }
-      if (recovery === "rejected") {
+      if (recovery === SessionRecoveryOutcomes.Rejected) {
         store.setAnonymous();
         return;
       }
     }
 
-    const result = await fetchMe(true);
-    if (!result.success && settleAnonymousOnFailure) {
-      // A present-but-rejected token (expired/invalid) resolves to logged-out.
-      // On the server we instead leave the session `unknown` (see below) so the
-      // client can retry a fetch that failed only because the backend was
-      // unreachable during SSR — preserving the client-retry safety net.
-      store.setAnonymous();
+    const outcome = await loadUser();
+    if (outcome.status === FetchUserOutcomes.Ok) {
+      return;
     }
+
+    // A token the API *rejected* is an answer, and the answer is "logged out" — so it
+    // settles here even on the server, where `settleAnonymousOnFailure` is off. That
+    // flag guards only the other failure: no answer came back at all, which during SSR
+    // means the backend was unreachable and the client should retry rather than
+    // inherit a verdict nobody reached.
+    if (outcome.status === FetchUserOutcomes.Rejected || settleAnonymousOnFailure) {
+      store.setAnonymous();
+      return;
+    }
+
+    // Nothing was learned and nothing was settled, so the single-flight latch must not
+    // hold the non-answer — the next `bootstrap()`/`whenSettled()` gets to ask again.
+    allowBootstrapRetry();
   }
 
   /**
@@ -301,7 +335,7 @@ export function createIdentitySession({
    * whose bootstrap is still in flight).
    */
   function whenSettled(): Promise<void> {
-    if (store.status.value !== "unknown") {
+    if (store.status.value !== SessionStatuses.Unknown) {
       return Promise.resolve();
     }
     return bootstrap();

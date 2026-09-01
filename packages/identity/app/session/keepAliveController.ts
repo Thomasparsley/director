@@ -1,5 +1,6 @@
 import { noopIdentityLogger } from "../utils/logger";
 
+import { SessionExpiredReasons } from "./types";
 import type { SessionExpiredReason, SessionLogger } from "./types";
 
 export interface KeepAliveControllerConfig {
@@ -83,7 +84,7 @@ export function createKeepAliveController(deps: KeepAliveControllerDeps) {
     const deadline = computeDeadline();
     if (deadline <= now()) {
       // No headroom left before the token dies — skip the prompt.
-      expire("idle-timeout");
+      expire(SessionExpiredReasons.IdleTimeout);
       return;
     }
 
@@ -91,7 +92,7 @@ export function createKeepAliveController(deps: KeepAliveControllerDeps) {
     deps.openKeepAliveDialog(deadline);
     timer = setTimer(() => {
       timer = null;
-      expire("idle-timeout");
+      expire(SessionExpiredReasons.IdleTimeout);
     }, deadline - now());
     logger.debug("Keep-alive dialog opened", { deadline });
   }

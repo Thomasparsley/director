@@ -7,6 +7,11 @@ import { buildLoginCredentials } from "#layers/director-identity/app/core/creden
 import { PasskeyErrorResults } from "#layers/director-identity/app/errors/passkeyErrors";
 
 const identity = useIdentity();
+// Destructured out of the groups rather than held as `identity.viewer`, because in a
+// component that is required: Vue unwraps only top-level refs from `<script setup>`,
+// so `viewer.isAuthorized` reaching the template would render the ref, not the boolean.
+const { user, isAuthorized, isSessionSettled } = identity.viewer;
+const { status: sessionStatus } = identity.session;
 const passkey = usePasskey();
 
 const username = ref("");
@@ -111,13 +116,26 @@ function describe(error: PasskeyErrorResults): string {
     </p>
 
     <p class=":uno: text-sm vtext-2">
-      Session status: <strong>{{ identity.sessionStatus.value }}</strong>
+      Session status: <strong>{{ sessionStatus }}</strong>
     </p>
 
-    <template v-if="identity.isAuthorized.value">
+    <!--
+      Three states, not two. Until the session settles, `isAuthorized` is `false` for
+      "not known yet" exactly as it is for "no" — so claiming either answer here is how
+      a returning visitor gets server-rendered a sign-in form they never lost.
+    -->
+    <p
+      v-if="!isSessionSettled"
+      data-testid="session-pending"
+      class=":uno: text-sm vtext-2"
+    >
+      Checking your session…
+    </p>
+
+    <template v-else-if="isAuthorized">
       <p class=":uno: text-sm vtext-1">
-        Signed in as <strong>{{ identity.user.value?.name }}</strong>
-        ({{ identity.user.value?.email }})
+        Signed in as <strong>{{ user?.name }}</strong>
+        ({{ user?.email }})
       </p>
 
       <div class=":uno: flex gap-2">
@@ -145,7 +163,7 @@ function describe(error: PasskeyErrorResults): string {
     </div>
 
     <form
-      v-if="!identity.isAuthorized.value"
+      v-if="isSessionSettled && !isAuthorized"
       class=":uno: flex flex-col gap-3 max-w-xs"
       @submit.prevent="signIn"
     >

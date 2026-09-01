@@ -8,6 +8,7 @@ import { parseExpiry } from "../core/tokenTiming";
 import { useIdentityRuntime } from "../composables/useIdentityRuntime";
 import type { IdentityUser } from "../types/user";
 
+import { SessionStatuses } from "./types";
 import type { SessionExpiredReason, SessionState } from "./types";
 
 const SESSION_STATE_KEY = "identity-session";
@@ -37,7 +38,7 @@ function useSharedCookie(name: string, memoKey: string): Ref<string | undefined>
 
 function initialState(): SessionState {
   return {
-    status: "unknown",
+    status: SessionStatuses.Unknown,
     user: undefined,
     expiresAtMs: null,
     expiredReason: null,
@@ -58,30 +59,30 @@ export function useSessionStore() {
 
   const status = computed(() => state.value.status);
   const user = computed(() => state.value.user);
-  const isAuthorized = computed(() => state.value.status === "authenticated");
+  const isAuthorized = computed(() => state.value.status === SessionStatuses.Authenticated);
   const expiresAtMs = computed(() => state.value.expiresAtMs);
   const expiredReason = computed(() => state.value.expiredReason);
   const hasAccessToken = computed(() => parseBooleanCookie(cookie.value));
   const hasRefreshToken = computed(() => parseBooleanCookie(refreshCookieRef.value));
 
   function setAuthenticating(): void {
-    state.value.status = "authenticating";
+    state.value.status = SessionStatuses.Authenticating;
   }
 
   function setAuthenticated(nextUser: IdentityUser): void {
     state.value.user = nextUser;
-    state.value.status = "authenticated";
+    state.value.status = SessionStatuses.Authenticated;
     state.value.expiredReason = null;
   }
 
   function setAnonymous(): void {
     state.value.user = undefined;
-    state.value.status = "anonymous";
+    state.value.status = SessionStatuses.Anonymous;
     state.value.expiredReason = null;
   }
 
   function setExpired(reason: SessionExpiredReason): void {
-    state.value.status = "expired";
+    state.value.status = SessionStatuses.Expired;
     state.value.expiredReason = reason;
   }
 

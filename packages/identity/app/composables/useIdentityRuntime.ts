@@ -1,5 +1,7 @@
 import { useAppConfig, useNuxtApp } from "#app";
 
+import { IdentityNotConfiguredError } from "../errors/identityError";
+
 import { defaultIdentityCookieNames, defaultIdentityTiming } from "../config";
 import type { IdentityCookieNames, IdentityTimingConfig } from "../config";
 import type { IdentityAppConfig, IdentityPermissionsAdapter } from "../types/appConfig";
@@ -65,7 +67,8 @@ export function useIdentityRuntime(): IdentityRuntime {
     get api() {
       const factory = input?.api;
       if (!factory) {
-        throw new Error(
+        throw new IdentityNotConfiguredError(
+          "identity.api",
           "[identity] No API configured. Set `identity.api` in app.config so the "
           + "identity layer knows how to talk to your backend (see IdentityAppConfig).",
         );
@@ -80,7 +83,8 @@ export function useIdentityRuntime(): IdentityRuntime {
     get challengeApi() {
       const factory = input?.challengeApi;
       if (!factory) {
-        throw new Error(
+        throw new IdentityNotConfiguredError(
+          "identity.challengeApi",
           "[identity] No challenge API configured. Set `identity.challengeApi` in "
           + "app.config to use the MFA / step-up challenge flows.",
         );
@@ -98,7 +102,8 @@ export function useIdentityRuntime(): IdentityRuntime {
     get passkeyApi() {
       const factory = input?.passkeyApi;
       if (!factory) {
-        throw new Error(
+        throw new IdentityNotConfiguredError(
+          "identity.passkeyApi",
           "[identity] No passkey API configured. Set `identity.passkeyApi` in app.config "
           + "to use the passkey flows.",
         );
@@ -109,7 +114,8 @@ export function useIdentityRuntime(): IdentityRuntime {
     get passkeyCeremony() {
       const factory = input?.passkeyCeremony;
       if (!factory) {
-        throw new Error(
+        throw new IdentityNotConfiguredError(
+          "identity.passkeyCeremony",
           "[identity] No passkey ceremony configured. Set `identity.passkeyCeremony` in "
           + "app.config, building it from "
           + "`#layers/director-identity/transports/passkey` — the layer cannot import that "

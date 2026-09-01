@@ -5,6 +5,7 @@ import {
 } from "../core/tokenTiming";
 import { noopIdentityLogger } from "../utils/logger";
 
+import { SessionExpiredReasons, SessionRecoveryOutcomes } from "./types";
 import type { SessionExpiredReason, SessionLogger, SessionRecoveryOutcome } from "./types";
 
 export interface TokenLifecycleConfig {
@@ -167,7 +168,7 @@ export function createTokenLifecycle(deps: TokenLifecycleDeps) {
   async function runRecovery(): Promise<void> {
     if (!recoverSession || !canRecoverSession()) {
       logger.warn("Access token is dead and there is no refresh session to recover from");
-      onExpired("wake-expired");
+      onExpired(SessionExpiredReasons.WakeExpired);
       return;
     }
 
@@ -177,7 +178,7 @@ export function createTokenLifecycle(deps: TokenLifecycleDeps) {
     }
     catch (error) {
       logger.error("Session recovery from the refresh token threw", { error });
-      outcome = "rejected";
+      outcome = SessionRecoveryOutcomes.Rejected;
     }
 
     if (!active) {
@@ -185,13 +186,13 @@ export function createTokenLifecycle(deps: TokenLifecycleDeps) {
       return;
     }
 
-    if (outcome === "recovered") {
+    if (outcome === SessionRecoveryOutcomes.Recovered) {
       logger.log("Session recovered from the refresh token");
       schedule();
       return;
     }
 
-    if (outcome === "unreachable") {
+    if (outcome === SessionRecoveryOutcomes.Unreachable) {
       // A network failure is not an answer. Expiring here would drop a session that
       // very likely still lives, so the session is left exactly as it is and the next
       // wake event — visibility, focus, `online`, bfcache — tries again.
@@ -200,7 +201,7 @@ export function createTokenLifecycle(deps: TokenLifecycleDeps) {
     }
 
     logger.warn("Refresh token was refused — session expired");
-    onExpired("wake-recovery-failed");
+    onExpired(SessionExpiredReasons.WakeRecoveryFailed);
   }
 
   function recoverOrExpire(): Promise<void> {

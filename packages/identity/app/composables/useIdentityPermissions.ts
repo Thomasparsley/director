@@ -17,6 +17,14 @@ type PermissionInput
  * user's permissions live — the app teaches it via the `identity.permissions`
  * adapter in app.config (`hasFullAccess` / `permissionsOf`). Without an adapter,
  * only the explicit scope-chain path (`required.collection`) can grant access.
+ *
+ * This composable's return IS the `permissions` group of the identity instance, so
+ * the members are named for that seat: no `User` infix, because `permissions.` (or a
+ * `useIdentity().permissions` destructure) already says it. They are also named to
+ * read standalone — `hasPermission`, not the tempting `has` — because a component
+ * has to destructure them: Vue unwraps only top-level refs from `<script setup>`, so
+ * a `permissions.hasFullAccess` reaching a template would render the ref object
+ * rather than the boolean.
  */
 export function useIdentityPermissions(
   user: Readonly<Ref<IdentityUser | undefined>>,
@@ -24,7 +32,7 @@ export function useIdentityPermissions(
 ) {
   const adapter = useIdentityRuntime().permissions;
 
-  const hasUserFullAccess = computed(() => {
+  const hasFullAccess = computed(() => {
     const currentUser = user.value;
     if (!currentUser) {
       return false;
@@ -32,12 +40,12 @@ export function useIdentityPermissions(
     return adapter?.hasFullAccess?.(currentUser) ?? false;
   });
 
-  function hasUserPermission(required: HasUserPermissionArgument): boolean {
+  function hasPermission(required: HasUserPermissionArgument): boolean {
     const currentUser = user.value;
     if (!isAuthorized.value || !currentUser) {
       return false;
     }
-    if (hasUserFullAccess.value) {
+    if (hasFullAccess.value) {
       return true;
     }
 
@@ -53,13 +61,13 @@ export function useIdentityPermissions(
     return permissionsSatisfy(userPermissions, required);
   }
 
-  function useHasUserPermission(required: PermissionInput): ComputedRef<boolean> {
-    return computed(() => hasUserPermission(toValue(required)));
+  function useHasPermission(required: PermissionInput): ComputedRef<boolean> {
+    return computed(() => hasPermission(toValue(required)));
   }
 
   return {
-    hasUserFullAccess,
-    hasUserPermission,
-    useHasUserPermission,
+    hasFullAccess,
+    hasPermission,
+    useHasPermission,
   };
 }
