@@ -77,6 +77,33 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      # Provenance goes in the npmrc, because neither earlier attempt could have worked.
+      # v0.1.0 set NPM_CONFIG_PROVENANCE on the publish step, believing pnpm forwards it to
+      # the npm CLI. v0.3.0 moved it into each package's `publishConfig`, believing pnpm
+      # reads it there. It does not: pnpm's `createPublishOptions` reads exactly six
+      # publishConfig keys — access, directory, executableFiles, linkDirectory, name and
+      # registry — and takes `provenance` only from the config layer. `publishConfig.provenance`
+      # is therefore inert under pnpm, and v0.3.0 shipped all three packages unattested in
+      # exactly the way v0.1.0 had. The key is still correct for the npm CLI; it is kept so a
+      # publish run outside pnpm attests, and it is not what makes this workflow attest.
+      #
+      # `changeset publish` spawns `pnpm publish --access … --tag … --no-git-checks` with a
+      # fixed flag list and no way to append to it, so pnpm's `--provenance` flag is out of
+      # reach here — it is accepted by 11.20, despite being absent from `publish --help`.
+      # What is in reach is the rc layer: "provenance" is listed in pnpm's `rcOptionsTypes`
+      # for publish, so an npmrc entry reaches the same option the flag would set. It goes
+      # into setup-node's npmrc — the file pnpm demonstrably reads, since the token in it is
+      # what makes `pnpm whoami` above succeed — and not into the committed project .npmrc,
+      # which would also make every local publish try to attest and fail.
+      #
+      # The `id-token: write` permission above is what makes the OIDC exchange possible; a
+      # local `pnpm release` has no such token and still publishes unattested, by design.
+      - name: Turn provenance on for pnpm
+        run: |
+          test -n "$NPM_CONFIG_USERCONFIG" \
+            || { echo "::error::NPM_CONFIG_USERCONFIG is unset — setup-node wrote no npmrc for pnpm to read"; exit 1; }
+          echo "provenance=true" >> "$NPM_CONFIG_USERCONFIG"
+
       # Publishes every package whose version is not already on the registry and
       # skips the rest — so a tag that bumped one layer publishes one package.
       #
@@ -89,15 +116,55 @@ jobs:
       # (`Cannot read properties of undefined (reading 'includes')`), aborting the run
       # with five packages still unpublished. Every publish failure looks like that
       # TypeError, so treat one as "read the registry, not the stack trace".
-      # Provenance is NOT configured here. v0.1.0 set NPM_CONFIG_PROVENANCE on this step, on
-      # the belief that pnpm forwards it to the npm CLI; it does not, and all nine packages
-      # shipped unattested. It now lives in each package's `publishConfig`, which pnpm reads
-      # directly. `--provenance` is absent from pnpm 11.9's `publish --help` and present in
-      # current pnpm, which is part of why `packageManager` moved to 11.20. The
-      # `id-token: write` permission above is what makes the OIDC exchange possible.
-      #
-      # Verify it landed rather than assuming: `npm view @directorkit/ui dist.attestations`
-      # must not be empty. That check is what caught this the first time.
-      - run: pnpm release
+      - name: Publish
+        run: |
+          set -o pipefail
+          pnpm release | tee /tmp/publish.log
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # Assume nothing: read the attestations back off the registry. Twice now a release has
+      # reported "packages published successfully" and shipped unattested, and both times it
+      # was this check — run by hand, after the fact — that noticed. Running it here is what
+      # stops a third time.
+      #
+      # It has to poll. The registry is read-after-write inconsistent (see above): during
+      # v0.3.0 `identity` 404ed for roughly three minutes after the publish that created it,
+      # while `dialogs` from the same run was already readable.
+      - name: Verify provenance landed
+        run: |
+          published=$(grep -oE '@directorkit/[a-z-]+@[0-9]+\.[0-9]+\.[0-9]+' /tmp/publish.log | sort -u)
+          if [ -z "$published" ]; then
+            echo "Nothing was published — no attestations to check."
+            exit 0
+          fi
+          # A `while read` loop here would run in a subshell, where `exit 1` fails only the
+          # subshell and the step still passes green. That is the failure mode this whole
+          # step exists to catch, so the loop is a `for`.
+          for pkg in $published; do
+            name=${pkg%@*}
+            version=${pkg##*@}
+            body=""
+            for attempt in $(seq 1 20); do
+              if body=$(curl -sf "https://registry.npmjs.org/$name/$version"); then
+                break
+              fi
+              echo "$pkg is not readable on the registry yet (attempt $attempt)"
+              sleep 20
+            done
+            if [ -z "$body" ]; then
+              echo "::error::$pkg never became readable on the registry"
+              exit 1
+            fi
+            printf '%s' "$body" | node -e '
+              let s = "";
+              process.stdin.on("data", d => s += d).on("end", () => {
+                const attestations = JSON.parse(s).dist?.attestations;
+                if (!attestations) {
+                  console.log(`::error::${process.argv[1]} published without provenance attestations`);
+                  process.exit(1);
+                }
+                console.log(`${process.argv[1]} is attested: ${attestations.url ?? "present"}`);
+              });
+            ' "$pkg"
+          done
