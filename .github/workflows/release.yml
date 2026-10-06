@@ -77,32 +77,31 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      # Provenance goes in the npmrc, because neither earlier attempt could have worked.
-      # v0.1.0 set NPM_CONFIG_PROVENANCE on the publish step, believing pnpm forwards it to
-      # the npm CLI. v0.3.0 moved it into each package's `publishConfig`, believing pnpm
-      # reads it there. It does not: pnpm's `createPublishOptions` reads exactly six
-      # publishConfig keys — access, directory, executableFiles, linkDirectory, name and
-      # registry — and takes `provenance` only from the config layer. `publishConfig.provenance`
-      # is therefore inert under pnpm, and v0.3.0 shipped all three packages unattested in
-      # exactly the way v0.1.0 had. The key is still correct for the npm CLI; it is kept so a
-      # publish run outside pnpm attests, and it is not what makes this workflow attest.
+      # Provenance is switched on through the environment of the Publish step below, as
+      # `pnpm_config_provenance`. Three earlier attempts could not have worked; each shipped
+      # unattested, and the last was caught by the check at the end of this job (v0.3.1):
+      #   - v0.1.0 set `NPM_CONFIG_PROVENANCE`. pnpm 11 does not read the `NPM_CONFIG_` prefix
+      #     for its own settings.
+      #   - v0.3.0 put `provenance` in each package's `publishConfig`. pnpm's
+      #     `createPublishOptions` reads exactly six publishConfig keys — access, directory,
+      #     executableFiles, linkDirectory, name and registry — and takes `provenance` only
+      #     from the config layer. The key is kept because the npm CLI honours it.
+      #   - v0.3.1 appended `provenance=true` to setup-node's npmrc. pnpm 11 reads only auth
+      #     and network keys out of an npmrc (`isNpmrcReadableKey`); everything else is
+      #     silently dropped, so the publish succeeded, unattested.
+      # What pnpm 11 does read is `pnpm_config_<name>` from the environment (or the same key,
+      # camelCased, in pnpm-workspace.yaml — which would make every local publish try to
+      # attest and fail, so it stays out of the repo). Checked against a stub registry: with
+      # `pnpm_config_provenance=true` `pnpm publish` goes for the attestation (locally it
+      # stops with "Automatic provenance generation not supported"); with the npmrc entry or
+      # `NPM_CONFIG_PROVENANCE` it publishes without one.
       #
-      # `changeset publish` spawns `pnpm publish --access … --tag … --no-git-checks` with a
-      # fixed flag list and no way to append to it, so pnpm's `--provenance` flag is out of
-      # reach here — it is accepted by 11.20, despite being absent from `publish --help`.
-      # What is in reach is the rc layer: "provenance" is listed in pnpm's `rcOptionsTypes`
-      # for publish, so an npmrc entry reaches the same option the flag would set. It goes
-      # into setup-node's npmrc — the file pnpm demonstrably reads, since the token in it is
-      # what makes `pnpm whoami` above succeed — and not into the committed project .npmrc,
-      # which would also make every local publish try to attest and fail.
+      # `changeset publish` spawns `pnpm publish` with the environment it was given, so the
+      # variable reaches the publish. Its flag list is fixed, which is why pnpm's own
+      # `--provenance` flag is out of reach here.
       #
       # The `id-token: write` permission above is what makes the OIDC exchange possible; a
       # local `pnpm release` has no such token and still publishes unattested, by design.
-      - name: Turn provenance on for pnpm
-        run: |
-          test -n "$NPM_CONFIG_USERCONFIG" \
-            || { echo "::error::NPM_CONFIG_USERCONFIG is unset — setup-node wrote no npmrc for pnpm to read"; exit 1; }
-          echo "provenance=true" >> "$NPM_CONFIG_USERCONFIG"
 
       # Publishes every package whose version is not already on the registry and
       # skips the rest — so a tag that bumped one layer publishes one package.
@@ -122,6 +121,7 @@ jobs:
           pnpm release | tee /tmp/publish.log
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          pnpm_config_provenance: "true"
 
       # Assume nothing: read the attestations back off the registry. Twice now a release has
       # reported "packages published successfully" and shipped unattested, and both times it
