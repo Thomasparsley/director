@@ -1,6 +1,6 @@
 {
   "name": "@directorkit/form-ui",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "The bridge between @directorkit/forms and @directorkit/ui — <DForm*> inputs bound to a FormControl.",
   "keywords": [
     "nuxt",

@@ -1,5 +1,14 @@
 # @directorkit/filters
 
+## 0.1.2
+
+### Patch Changes
+
+- 6c775d8: Develop and test against Nuxt 4.6.0 (was 4.4.6). The `nuxt: ^4` peer range is
+  unchanged, so consumers on any Nuxt 4 release are unaffected.
+- Updated dependencies [6c775d8]
+  - @directorkit/forms@0.1.2
+
 ## 0.1.1
 
 ### Patch Changes

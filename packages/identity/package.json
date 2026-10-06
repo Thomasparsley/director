@@ -1,6 +1,6 @@
 {
   "name": "@directorkit/identity",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Session/auth state for Nuxt behind an app-supplied IdentityApi — session machine, token lifecycle, keep-alive. No components.",
   "keywords": [
     "nuxt",
